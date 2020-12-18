@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="" />
+    <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="">
+      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_pages/css_js/my_styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static_pages/css_js/my_styles.css" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_pages/login.html" beforeDir="false" afterPath="$PROJECT_DIR$/static_pages/login.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_pages/logout.html" beforeDir="false" afterPath="$PROJECT_DIR$/static_pages/logout.html" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_pages/panel.html" beforeDir="false" afterPath="$PROJECT_DIR$/static_pages/panel.html" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -15,6 +23,9 @@
       </list>
     </option>
   </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
   <component name="ProjectId" id="1lpKd3MBMRht6M2lURjWF9It7O5" />
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
@@ -25,7 +36,7 @@
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="RunOnceActivity.ShowReadmeOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="javascript.nodejs.core.library.configured.version" value="15.4.0" />
+    <property name="javascript.nodejs.core.library.configured.version" value="15.2.0" />
     <property name="javascript.nodejs.core.library.typings.version" value="14.14.14" />
     <property name="nodejs_interpreter_path" value="node" />
     <property name="nodejs_package_manager_path" value="npm" />
@@ -40,10 +51,22 @@
       <option name="presentableId" value="Default" />
       <updated>1608288677219</updated>
       <workItem from="1608288678537" duration="560000" />
+      <workItem from="1608289768963" duration="1168000" />
     </task>
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
   </component>
 </project>

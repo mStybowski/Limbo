@@ -61,3 +61,17 @@ p{
     padding: 6px 0;
     color: #868686;
 }
+
+.success{
+    background-color: #caefc6;
+}
+
+#info{
+    font-size: 13px;
+    font-weight: bold;
+    color: #707070;
+}
+
+#info a {
+    color: #4b57ff
+}
