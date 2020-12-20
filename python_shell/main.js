@@ -3,21 +3,21 @@ let {PythonShell} = require('python-shell');
 // Configuration object
 let defaultOptions = {
     mode: 'text',
-    scriptPath: './pythonScripts/',
+    scriptPath: './python_scripts/',
     args: ['1', '2', '3']
 };
 
 
 class PythonInterpreter{
 
-    static spawn(url, options, onMessageCallback){
+    static spawn(url, onMessageCallback, options = defaultOptions){
         let pInterpreter = new PythonShell(url, options);
         pInterpreter.on('message', onMessageCallback);
 
         return pInterpreter;
     }
 
-    static run({url, options = defaultOptions, callback}){
+    static run({url, callback, options = defaultOptions}){
         // You should print data using print() in python
         // Callback receives two parameters:
         // err, results
