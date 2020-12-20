@@ -4,6 +4,7 @@ let {PythonShell} = require('python-shell');
 let defaultOptions = {
     mode: 'text',
     scriptPath: './python_scripts/',
+    pythonOptions: ['-u'], // get print results in real-time
     args: ['1', '2', '3']
 };
 
@@ -12,6 +13,7 @@ class PythonInterpreter{
 
     static spawn(url, onMessageCallback, options = defaultOptions){
         let pInterpreter = new PythonShell(url, options);
+        
         pInterpreter.on('message', onMessageCallback);
 
         return pInterpreter;

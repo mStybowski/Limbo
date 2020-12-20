@@ -45,6 +45,6 @@ app.get("/panelforce", (req, res) => {
     res.sendFile(path.join(__dirname, "static_pages", "panel.html"));
 })
 
-app.listen(80, () => {
+app.listen(8080, () => {
     console.log("Server running")
 });

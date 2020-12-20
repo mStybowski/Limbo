@@ -1,6 +1,7 @@
 const mqtt = require("mqtt")
 const handleGUIRequests = require("./handleGUIRequests")
 const handleDataFlow = require("./handleDataFlow")
+const handleInterfaces = require("./handleInterfacesSettings")
 const testFolder = '../pythonScripts';
 const fs = require('fs');
 const path = require("path")
@@ -11,11 +12,13 @@ const PythonInterpreter = require("../python_shell/main")
 //zmienna
 
 
+
 class MQTTClient{ //main class, root aplikacji
 
     client;
     data;
     EMGPreprocessor = PythonInterpreter.spawn("00_preprocess.py", this.processDataFromPreprocessor);
+    interfaces = {}; // here we can store interfacex e.g. MMG, EMG, etc.
     state={
         connected: false,
         mqttBrokerIP: "",
@@ -46,7 +49,7 @@ class MQTTClient{ //main class, root aplikacji
             this.state.connected = true;
             this.state.mqttBrokerIP = ip;
             console.log("Connected to the MQTT broker at: " + this.state.mqttBrokerIP);
-            client.subscribe(['sensors/mmg', 'sensors/emg', 'wills', 'guiRequests/#'], function (err) {
+            client.subscribe(['sensors/mmg', 'sensors/emg', 'wills', 'guiRequests/#', "interfaces/#"], function (err) {
                 if (!err) {
                     client.publish('presence', 'Hello mqtt from server')
                 }
@@ -58,10 +61,21 @@ class MQTTClient{ //main class, root aplikacji
 
         client.on("message", (topic, mess)=>{
             let parsedTopic = topic.split('/');
+            //console.log(mess.toString() + " na topicu: " + topic + " parsedTopic[0]: " + parsedTopic[0])
+
+            // GUI REQUESTS
             if(parsedTopic[0] === "guiRequests")
                 handleGUIRequests(this, parsedTopic, mess);
-            else if(parsedTopic[0] === "sensors")
+
+            // SENSOR DATA
+            else if(parsedTopic[0] === "sensors"){
                 handleDataFlow(this, parsedTopic, mess);
+            }
+
+            // INTERFACES
+            else if(parsedTopic[0] === "interfaces"){
+                handleInterfaces(this, parsedTopic, mess);
+            }
         })
         this.client = client;
     }
