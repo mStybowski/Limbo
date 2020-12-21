@@ -2,14 +2,10 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="added python scripts">
-      <change afterPath="$PROJECT_DIR$/infografika.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/test_01_fine_tune.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/test_02_classify.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/test_preprocessor.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/conf/interfaces.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt_server/handleDataFlow.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleDataFlow.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt_server/handleInterfacesSettings.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleInterfacesSettings.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt_server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/main.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -22,6 +18,7 @@
       <list>
         <option value="HTML File" />
         <option value="JavaScript File" />
+        <option value="tsconfig.json" />
       </list>
     </option>
   </component>
@@ -62,7 +59,8 @@
       <workItem from="1608495578270" duration="1174000" />
       <workItem from="1608504615893" duration="31000" />
       <workItem from="1608504848482" duration="320000" />
-      <workItem from="1608551073456" duration="5228000" />
+      <workItem from="1608551073456" duration="5315000" />
+      <workItem from="1608556637091" duration="6500000" />
     </task>
     <task id="LOCAL-00001" summary="Static files upgraded">
       <created>1608291302564</created>

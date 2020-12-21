@@ -7,52 +7,27 @@ const fs = require('fs');
 const path = require("path")
 const PythonInterpreter = require("../python_shell/main")
 
-//Main class
-//Tu też handluje stan aplikacji
-//zmienna
-
-
-
-class MQTTClient{ //main class, root aplikacji
+class MQTTClient{
 
     client;
-    data;
-    // EMGPreprocessor = PythonInterpreter.spawn("00_preprocess.py", this.processDataFromPreprocessor);
-    preprocessors = {}
-
-    onlineInterfaces = {
-    }
-    interfacesConfig = {
-        emg:{
-            preprocessor: "00_preprocess.py",
-            train: "01_fine_tune.py",
-            classify: "02_classify.py",
-            rawBufferSize: 10
-            //TODO Maybe add more properties
-        },
-        mmg:{
-            preprocessor: "preprocessor.py",
-            train: "01_fine_tune.py",
-            classify: "02_classify.py",
-            rawBufferSize: 30
-            //TODO Maybe add more properties
-
-        },
-        test:{
-            preprocessor: "test_preprocessor.py",
-            train: "test_01_fine_tune.py",
-            classify: "test_02_classify.py",
-            rawBufferSize: 3
-            //TODO Maybe add more properties
-        }
-    };
-
-
     state={
         connected: false,
         mqttBrokerIP: "",
         mode: "idle" // idle || learn || predict
     }
+    onlineInterfaces={};
+
+    loadInterfaces(){
+        let rawData = fs.readFileSync('./conf/interfaces.json');
+        this.interfacesConfig = JSON.parse(rawData.toString());
+        console.log(this.interfacesConfig);
+        this.saveInterfaces();
+    }
+
+    saveInterfaces(){
+        fs.writeFileSync('./conf/interfaces.json', JSON.stringify(this.interfacesConfig));
+    }
+
 
     handleRawData(_interface, message){
         if(this.onlineInterfaces[_interface]){
@@ -64,26 +39,18 @@ class MQTTClient{ //main class, root aplikacji
             });
             console.log(currentInterface.rawData);
             if(currentInterface.rawData.length >= this.interfacesConfig[_interface].rawBufferSize){
-                console.log("MAMY KOMPLET!!!!: " + this.onlineInterfaces[_interface].rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize)); // To jest przekazanie dalej
+                this.onlineInterfaces[_interface].preprocessor.send(this.onlineInterfaces[_interface].rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize)); // To jest przekazanie dalej
+                console.log("Przekazano: " + this.onlineInterfaces[_interface].rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize));
                 currentInterface.rawData = currentInterface.rawData.slice(this.interfacesConfig[_interface].rawBufferSize,200);
             }
-            // else if(dataPackets.length + this.onlineInterfaces[_interface].rawData.length === this.interfacesConfig[_interface].rawBufferSize){
-            //     this.onlineInterfaces[_interface].rawData.push(dataPackets)
-            //     console.log(this.onlineInterfaces[_interface].rawData);// To jest przekazanie dalej
-            //     this.onlineInterfaces[_interface].rawData = [];
-            // }
-            // else if(dataPackets.length + this.onlineInterfaces[_interface].rawData.length < this.interfacesConfig[_interface].rawBufferSize){
-            //     this.onlineInterfaces[_interface].rawData.push(dataPackets)
-            // }
-
         }
         else{
-            console.log(_interface + " is not used at the moment. First you must turn it on.");
+            console.log("Info: Topic '" + _interface + "' is not used at the moment. First you must turn it on.");
         }
     }
 
     createInterfaceHandler(_interface){
-        if(this.interfacesConfig[_interface]){
+        if(this.interfacesConfig[_interface] && !this.onlineInterfaces[_interface]){
             let interfaceConf = this.interfacesConfig[_interface];
             this.onlineInterfaces[_interface] = {
                 preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, this.consoleLogData),
@@ -91,27 +58,16 @@ class MQTTClient{ //main class, root aplikacji
                 classifier: PythonInterpreter.spawn(interfaceConf.classify, this.consoleLogData),
                 rawData: []
             }
-            console.log("Created interface handler for " + _interface);
-            console.log("Succesfully created " + _interface + " interface.");
+            console.log("Info: Succesfully created " + _interface + " interface.");
 
         }
         else{
-            console.log("Erorr: There is no " + _interface +" interface configured.")
+            if(!this.interfacesConfig[_interface])
+                console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
+            else if(this.onlineInterfaces[_interface])
+                console.log("Info: " + _interface + " interface is already online");
         }
     }
-
-    // saveInterfacesConf(){
-    //     var data = JSON.stringify(this.interfaces);
-    //
-    //     fs.writeFile('./config.json', data, function (err) {
-    //         if (err) {
-    //             console.log('There has been an error saving your configuration data.');
-    //             console.log(err.message);
-    //             return;
-    //         }
-    //         console.log('Configuration saved successfully.')
-    //     });
-    // }
 
     consoleLogData(data){
         console.log(data);
@@ -125,10 +81,6 @@ class MQTTClient{ //main class, root aplikacji
         fs.readdir(path.join(__dirname, '../pythonScripts'), (err, files) => {
             that.pythonFiles = files.slice();
         });
-    }
-
-    startRecognizing(url, ){
-        // this.pythonInterpreters.push(PythonInterpreter.spawn(url, ))
     }
 
     listen(ip){

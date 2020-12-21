@@ -14,7 +14,7 @@ app.use(express.static(path.join(__dirname, 'static_pages')));
 
 //TODO usun tą linie, jest robocza. łączenie z serwerem dopiero w callbacku.
 client.listen("ws://localhost:8083/mqtt");
-
+client.loadInterfaces();
 app.post("/attemptconnection", (req, res) => {
 
     // client.listen(req.body.ip);

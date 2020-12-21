@@ -2,16 +2,14 @@ function handleDataFlow(object, topicList, message){
 
     topicList.shift();
 
-    if(topicList[0] === "emg"){
+    if(object.interfacesConfig[topicList[0]]){
         object.handleRawData(topicList[0], JSON.parse(message.toString()));
     }
-    else if(topicList[0] === "mmg"){
-        console.log("*** MMG DATA RECEIVED");
+    else{
+        //TODO Wyślij do gui info że nie rozpoznano danych
+        console.log("Warning: Received data at unconfigured topic: " + topicList[0]);
     }
-    else if(topicList[0] === "test"){
-        console.log("*** TEST DATA RECEIVED");
-        object.handleRawData(topicList[0], JSON.parse(message.toString()));
-    }
+
 
 
 
