@@ -28,19 +28,41 @@ class MQTTClient{
         fs.writeFileSync('./conf/interfaces.json', JSON.stringify(this.interfacesConfig));
     }
 
-
     handleRawData(_interface, message){
         if(this.onlineInterfaces[_interface]){
             let currentInterface = this.onlineInterfaces[_interface];
-            let dataPackets = message["data"];
-            console.log("DataPackets: " + dataPackets);
+            console.log(message);
+
+            currentInterface.preprocessor.send(JSON.stringify(message));
+        }
+        else{
+            console.log("Info: Topic '" + _interface + "' is not used at the moment. First you must turn it on.");
+        }
+    }
+
+
+    postPreprocessing(_interface, message){
+        if(this.onlineInterfaces[_interface]){
+            let currentInterface = this.onlineInterfaces[_interface];
+            console.log("MESSAGE: " + message);
+            let _dataPackets = JSON.parse(message);
+            let dataPackets = _dataPackets["time series"];
+            console.log("dataPackets: " + _dataPackets);
+
             dataPackets.forEach((el) => {
                 currentInterface.rawData.push(el);
             });
+
             console.log(currentInterface.rawData);
+            console.log("LENGTH: " + currentInterface.rawData.length);
             if(currentInterface.rawData.length >= this.interfacesConfig[_interface].rawBufferSize){
-                this.onlineInterfaces[_interface].preprocessor.send(this.onlineInterfaces[_interface].rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize)); // To jest przekazanie dalej
-                console.log("Przekazano: " + this.onlineInterfaces[_interface].rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize));
+                let _obj = {};
+                _obj["features"] = currentInterface.rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize);
+                
+                let toSend = JSON.stringify(_obj);
+                console.log(toSend);
+               
+                currentInterface.classifier.send(toSend); // To jest przekazanie dalej
                 currentInterface.rawData = currentInterface.rawData.slice(this.interfacesConfig[_interface].rawBufferSize,200);
             }
         }
@@ -53,7 +75,7 @@ class MQTTClient{
         if(this.interfacesConfig[_interface] && !this.onlineInterfaces[_interface]){
             let interfaceConf = this.interfacesConfig[_interface];
             this.onlineInterfaces[_interface] = {
-                preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, this.consoleLogData),
+                preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, (features) => {this.postPreprocessing(_interface, features)}),
                 trainer: PythonInterpreter.spawn(interfaceConf.train, this.consoleLogData),
                 classifier: PythonInterpreter.spawn(interfaceConf.classify, this.consoleLogData),
                 rawData: []
@@ -70,7 +92,9 @@ class MQTTClient{
     }
 
     consoleLogData(data){
+        
         console.log(data);
+        console.log("heheheheeheh")
     }
     processDataFromPreprocessor(message){
         console.log(message)
