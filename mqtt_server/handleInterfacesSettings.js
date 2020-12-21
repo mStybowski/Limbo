@@ -14,7 +14,12 @@ function handleInterfaces(object, topicList, message){
         //TODO
     }
     else if(topicList[0] === "use"){
-        //TODO Here we can accept array of wanted interfaces
+        let parsedMessage = JSON.parse(message.toString());
+        let interfaces = parsedMessage["interfaces"];
+        interfaces.forEach((el) => {
+            object.createInterfaceHandler(el);
+        })
+
     }
 }
 

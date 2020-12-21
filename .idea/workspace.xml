@@ -1,31 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="Static files upgraded">
-      <change afterPath="$PROJECT_DIR$/mqtt_server/handleDataFlow.js" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/00_preprocess.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/01_fine_tune.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/02_classify.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/constants.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/emg_classifier.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/unittests_data/data_decoded_from_json.csv" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/unittests_data/decoded_base64.json" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/unittests_data/example_base64_value.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/unittests_data/example_incoming_json.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/emglimbo/utils.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/example_use_of_module.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/scripts_example_input_data/input_for_00.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/scripts_example_input_data/input_for_01.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/python_scripts/scripts_example_input_data/input_for_02.txt" afterDir="false" />
+    <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="added python scripts">
+      <change afterPath="$PROJECT_DIR$/infografika.png" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_scripts/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_scripts/test_01_fine_tune.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_scripts/test_02_classify.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/python_scripts/test_preprocessor.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODO.txt" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt_server/handleGUIRequests.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleGUIRequests.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mqtt_server/handleDataFlow.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleDataFlow.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mqtt_server/handleInterfacesSettings.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleInterfacesSettings.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt_server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_shell/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/python_shell/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static_pages/logout.html" beforeDir="false" afterPath="$PROJECT_DIR$/static_pages/logout.html" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/static_pages/panel.html" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -74,7 +59,10 @@
       <workItem from="1608288678537" duration="560000" />
       <workItem from="1608289768963" duration="6297000" />
       <workItem from="1608378035280" duration="1942000" />
-      <workItem from="1608495578270" duration="906000" />
+      <workItem from="1608495578270" duration="1174000" />
+      <workItem from="1608504615893" duration="31000" />
+      <workItem from="1608504848482" duration="320000" />
+      <workItem from="1608551073456" duration="5228000" />
     </task>
     <task id="LOCAL-00001" summary="Static files upgraded">
       <created>1608291302564</created>
@@ -83,7 +71,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608291302564</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="added python scripts">
+      <created>1608496749068</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1608496749068</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -104,6 +99,7 @@
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
     <MESSAGE value="Static files upgraded" />
-    <option name="LAST_COMMIT_MESSAGE" value="Static files upgraded" />
+    <MESSAGE value="added python scripts" />
+    <option name="LAST_COMMIT_MESSAGE" value="added python scripts" />
   </component>
 </project>
