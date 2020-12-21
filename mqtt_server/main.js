@@ -44,10 +44,9 @@ class MQTTClient{
     postPreprocessing(_interface, message){
         if(this.onlineInterfaces[_interface]){
             let currentInterface = this.onlineInterfaces[_interface];
-            console.log("MESSAGE: " + message);
             let _dataPackets = JSON.parse(message);
             let dataPackets = _dataPackets["time series"];
-            console.log("dataPackets: " + _dataPackets);
+            // console.log("Received from preprocessing: " + _dataPackets);
 
             dataPackets.forEach((el) => {
                 currentInterface.rawData.push(el);
@@ -72,7 +71,7 @@ class MQTTClient{
     }
 
     createInterfaceHandler(_interface){
-        if(this.interfacesConfig[_interface] && !this.onlineInterfaces[_interface]){
+        if(this.interfacesConfig[_interface]){
             let interfaceConf = this.interfacesConfig[_interface];
             this.onlineInterfaces[_interface] = {
                 preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, (features) => {this.postPreprocessing(_interface, features)}),
@@ -80,22 +79,18 @@ class MQTTClient{
                 classifier: PythonInterpreter.spawn(interfaceConf.classify, this.consoleLogData),
                 rawData: []
             }
-            console.log("Info: Succesfully created " + _interface + " interface.");
+            console.log("Success: Created " + _interface + " interface.");
 
         }
-        else{
-            if(!this.interfacesConfig[_interface])
-                console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
-            else if(this.onlineInterfaces[_interface])
-                console.log("Info: " + _interface + " interface is already online");
-        }
+        else
+            console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
     }
 
     consoleLogData(data){
         
         console.log(data);
-        console.log("heheheheeheh")
     }
+    
     processDataFromPreprocessor(message){
         console.log(message)
     }
@@ -115,7 +110,7 @@ class MQTTClient{
         client.on("connect", () => {
             this.state.connected = true;
             this.state.mqttBrokerIP = ip;
-            console.log("Connected to the MQTT broker at: " + this.state.mqttBrokerIP);
+            console.log("Success: Connected to the MQTT broker at: " + this.state.mqttBrokerIP);
             client.subscribe(['sensors/#', 'wills', 'guiRequests/#', "interfaces/#"], function (err) {
                 if (!err) {
                     client.publish('presence', 'Hello mqtt from server')
@@ -123,7 +118,7 @@ class MQTTClient{
             })
         })
         client.on("error", (err)=>{
-            console.log("There was an error: " + err)
+            console.log("Error: " + err)
         })
 
         client.on("message", (topic, mess)=>{
