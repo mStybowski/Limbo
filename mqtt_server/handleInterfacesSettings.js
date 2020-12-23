@@ -1,12 +1,31 @@
-function handleInterfaces(object, topicList, message){
-    topicList.shift();
+function checkCorrectness(message){
+
     let parsedMessage = JSON.parse(message.toString());
+
+    if(!parsedMessage["interfaces"] || !Array.isArray(parsedMessage["interfaces"])){
+        console.log("Incorrect message");
+        return null;
+    }
+
+    else if(parsedMessage["interfaces"].length === 0){
+        console.log("Info: Nothing to do here.")
+        return null;
+    }
+
+    return parsedMessage;
+
+}
+
+function handleInterfaces(object, topicList, message){
+
+    let parsedMessage = checkCorrectness(message);
+
+    if(!parsedMessage)
+        return;
+
+    topicList.shift();
     let interfaces = parsedMessage["interfaces"];
 
-    if(interfaces.length === 0){
-        console.log("Info: Nothing to do here.")
-        return;
-    }
 
     if(topicList[0] === "add"){
 
@@ -68,7 +87,9 @@ function handleInterfaces(object, topicList, message){
                 console.log("Success: Terminated '" + el + "' interface.");
             }
             else{
-                console.log("Warning: There is no '" + el + "' interface currently running. Skipped this one.");
+                let message = "There is no '" + el + "' interface currently running. Skipped this one.";
+                console.log(message);
+                object.serverLogs(message, "Warning", true);
             }
             
         })

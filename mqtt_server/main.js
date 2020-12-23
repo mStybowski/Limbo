@@ -17,6 +17,15 @@ class MQTTClient{
     }
     onlineInterfaces={};
 
+    serverLogs(_payload, type="info", verbose=false){
+        let messageObject = {
+            payload: type + ": " + _payload,
+            type: type,
+            verbose
+        }
+        this.client.publish("serverLogs", JSON.stringify(messageObject));
+    }
+
     loadInterfaces(){
         let rawData = fs.readFileSync('./conf/interfaces.json');
         this.interfacesConfig = JSON.parse(rawData.toString());
