@@ -49,6 +49,10 @@ class MQTTClient{
         }
     }
 
+    serverLog(payload, type){
+        let message = {type, payload}
+        this.client.publish("serverLogs", JSON.stringify(message));
+    }
 
     postPreprocessing(_interface, message){
         if(this.onlineInterfaces[_interface]){
@@ -82,17 +86,23 @@ class MQTTClient{
     createInterfaceHandler(_interface){
         if(this.interfacesConfig[_interface]){
             let interfaceConf = this.interfacesConfig[_interface];
+            //Use method instead of modyfing data directly
             this.onlineInterfaces[_interface] = {
                 preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, (features) => {this.postPreprocessing(_interface, features)}),
                 trainer: PythonInterpreter.spawn(interfaceConf.train, this.consoleLogData),
                 classifier: PythonInterpreter.spawn(interfaceConf.classify, this.consoleLogData),
                 rawData: []
             }
+
             console.log("Success: Created " + _interface + " interface.");
 
         }
         else
             console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
+    }
+
+    setOnlineInterfaces(newInterface){
+        // TODO
     }
 
     consoleLogData(data){
@@ -112,7 +122,7 @@ class MQTTClient{
     }
 
     setServerState(newState){
-        this.state = newState;
+        this.state = {...this.state, newState};
         this.send("server/state", JSON.stringify(newState));
     }
 
@@ -167,6 +177,13 @@ class MQTTClient{
 
     send(topic, message){
         this.client.publish(topic, message);
+    }
+
+    getInterfaces() {
+        if(this.interfacesConfig)
+            return this.interfacesConfig;
+        else
+            return "There is none";
     }
 
 

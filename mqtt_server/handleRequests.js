@@ -4,13 +4,25 @@ function handleRequests(object, topicList, message){
                 object.send("server/state", JSON.stringify(object.state));
                 console.log("Wyslano server state");
         }
-        else if(topicList[0] === "runInterpreter"){
+        else if(topicList[0] === "files"){
 
-                object.updatePythonScripts()
-                setTimeout(() => {console.log((object.pythonFiles).join())}, 0)
-                // object.send("serverResponses/filesList", (object.getPythonScripts()).join());
         }
+        else if(topicList[0] === "onlineInterfaces"){
 
+        }
+        else if(topicList[0] === "interfacesConfiguration"){
+
+        }
+        else if(topicList[0] === "learning"){
+                //TODO: if no interface specified then throw a warning
+        }
+        else if(topicList[0] === "learning/#"){
+                // TODO: Where # === gesture
+        }
+        else if(topicList[0] === "online"){
+                //TODO: if no interface specified then throw a warning
+
+        }
 
 
 }

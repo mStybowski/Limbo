@@ -28,6 +28,7 @@ function handleInterfaces(object, topicList, message){
     if(topicList[0] === "add"){
 
         interfaces.forEach((el, index) => {
+            // use method instead of accesing data directly
             if(object.interfacesConfig[el]){
                 console.log("Warning: Interface '" + el + "' already exists. Remove it or choose diffrent name for the new one.");
             }
@@ -57,6 +58,7 @@ function handleInterfaces(object, topicList, message){
     else if(topicList[0] === "remove"){
         interfaces.forEach((el) => {
             if(object.interfacesConfig[el]){
+                //TODO use method instead
                 delete object.interfacesConfig[el];
                 console.log("Success: '" + el + "' Interface has been deleted.");
             }
