@@ -1,5 +1,5 @@
 const mqtt = require("mqtt")
-const handleGUIRequests = require("./handleGUIRequests")
+const handleRequests = require("./handleRequests")
 const handleDataFlow = require("./handleDataFlow")
 const handleInterfaces = require("./handleInterfacesSettings")
 const testFolder = '../pythonScripts';
@@ -111,16 +111,30 @@ class MQTTClient{
         });
     }
 
+    setServerState(newState){
+        this.state = newState;
+        this.send("server/state", JSON.stringify(newState));
+    }
+
     listen(ip){
         const client = mqtt.connect(ip);
         client.on("disconnect", () => {
-            this.state.connected = false;//reset client -> null na disconnect
+            this.setServerState({
+                connected: false,
+                mqttBrokerIP: "",
+                state: "idle"
+            });
         })
         client.on("connect", () => {
-            this.state.connected = true;
-            this.state.mqttBrokerIP = ip;
+
+            this.setServerState({
+                connected: true,
+                mqttBrokerIP: ip,
+                state: "idle" 
+            });
+
             console.log("Success: Connected to the MQTT broker at: " + this.state.mqttBrokerIP);
-            client.subscribe(['sensors/#', 'wills', 'guiRequests/#', "interfaces/#"], function (err) {
+            client.subscribe(['sensors/#', 'wills', 'request/#', "interfaces/#"], function (err) {
                 if (!err) {
                     client.publish('presence', 'Hello mqtt from server')
                 }
@@ -135,8 +149,8 @@ class MQTTClient{
             //console.log(mess.toString() + " na topicu: " + topic + " parsedTopic[0]: " + parsedTopic[0])
 
             // GUI REQUESTS
-            if(parsedTopic[0] === "guiRequests")
-                handleGUIRequests(this, parsedTopic, mess);
+            if(parsedTopic[0] === "request")
+                handleRequests(this, parsedTopic, mess);
 
             // SENSOR DATA
             else if(parsedTopic[0] === "sensors"){

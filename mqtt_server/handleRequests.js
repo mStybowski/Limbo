@@ -1,7 +1,7 @@
-function handleGUICommands(object, topicList, message){
+function handleRequests(object, topicList, message){
         topicList.shift();
         if(topicList[0] === "state"){
-                object.send("serverResponses/state", JSON.stringify(object.state));
+                object.send("server/state", JSON.stringify(object.state));
                 console.log("Wyslano server state");
         }
         else if(topicList[0] === "runInterpreter"){
@@ -15,4 +15,4 @@ function handleGUICommands(object, topicList, message){
 
 }
 
-module.exports = handleGUICommands;
+module.exports = handleRequests;

@@ -11,9 +11,7 @@ function checkCorrectness(message){
         console.log("Info: Nothing to do here.")
         return null;
     }
-
     return parsedMessage;
-
 }
 
 function handleInterfaces(object, topicList, message){
@@ -93,6 +91,9 @@ function handleInterfaces(object, topicList, message){
             }
             
         })
+    }
+    else{
+        console.log("Warning: I dont know this topic.")
     }
 }
 
