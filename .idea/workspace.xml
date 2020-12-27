@@ -2,12 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="added python scripts">
+      <change afterPath="$PROJECT_DIR$/hand.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt_server/handleInterfacesSettings.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleInterfacesSettings.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/mqtt_server/handleRequests.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/handleRequests.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt_server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/main.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/python_scripts/test_preprocessor.py" beforeDir="false" afterPath="$PROJECT_DIR$/python_scripts/test_preprocessor.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -65,7 +62,10 @@
       <workItem from="1608677423681" duration="748000" />
       <workItem from="1608679973219" duration="803000" />
       <workItem from="1608719776672" duration="1890000" />
-      <workItem from="1608740284573" duration="758000" />
+      <workItem from="1608740284573" duration="896000" />
+      <workItem from="1608934035776" duration="1305000" />
+      <workItem from="1609033056289" duration="120000" />
+      <workItem from="1609087510066" duration="404000" />
     </task>
     <task id="LOCAL-00001" summary="Static files upgraded">
       <created>1608291302564</created>
