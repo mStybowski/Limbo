@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="added python scripts">
-      <change afterPath="$PROJECT_DIR$/hand.png" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt_server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/main.js" afterDir="false" />
     </list>
@@ -65,7 +64,9 @@
       <workItem from="1608740284573" duration="896000" />
       <workItem from="1608934035776" duration="1305000" />
       <workItem from="1609033056289" duration="120000" />
-      <workItem from="1609087510066" duration="404000" />
+      <workItem from="1609087510066" duration="636000" />
+      <workItem from="1609103141625" duration="1987000" />
+      <workItem from="1609109233401" duration="65000" />
     </task>
     <task id="LOCAL-00001" summary="Static files upgraded">
       <created>1608291302564</created>

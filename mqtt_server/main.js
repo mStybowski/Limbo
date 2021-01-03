@@ -129,8 +129,8 @@ class MQTTClient{
     }
 
     setServerState(newState){
-        this.state = {...this.state, newState};
-        this.send("server/state", JSON.stringify(newState));
+        this.state = {...this.state, ...newState};
+        this.send("server/state", JSON.stringify(this.state));
     }
 
     listen(ip){
@@ -139,7 +139,7 @@ class MQTTClient{
             this.setServerState({
                 connected: false,
                 mqttBrokerIP: "",
-                state: "idle"
+                mode: "idle"
             });
         })
         client.on("connect", () => {
@@ -147,10 +147,11 @@ class MQTTClient{
             this.setServerState({
                 connected: true,
                 mqttBrokerIP: ip,
-                state: "idle" 
+                mode: "idle"
             });
 
-            console.log("Success: Connected to the MQTT broker at: " + this.state.mqttBrokerIP);
+            console.log("Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP);
+
             client.subscribe(['sensors/#', 'wills', 'request/#', "interfaces/#"], function (err) {
                 if (!err) {
                     client.publish('presence', 'Hello mqtt from server')
