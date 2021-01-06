@@ -7,8 +7,9 @@ function handleRequests(object, topicList, message){
         else if(topicList[0] === "files"){
 
         }
-        else if(topicList[0] === "onlineInterfaces"){
-
+        else if(topicList[0] === "onlineInterface"){
+                let messageToSend = JSON.stringify(object.getOnlineInterface());
+                object.send("server/onlineInterface", messageToSend);
         }
         else if(topicList[0] === "interfacesConfiguration"){
 
@@ -18,10 +19,6 @@ function handleRequests(object, topicList, message){
         }
         else if(topicList[0] === "learning/#"){
                 // TODO: Where # === gesture
-        }
-        else if(topicList[0] === "online"){
-                //TODO: if no interface specified then throw a warning
-
         }
         else if(topicList[0] = "runScript"){
                 object.runOnce(script);
