@@ -1,2 +1,5 @@
 TODO: Łatwa implementacja reacta, oddzielenie od innych statycznych plików
 TODO: Śledzenie zmian w plikach skryptowych i update ich po stronie gui
+TODO: Handling wynikow klasyfikacji
+TODO: Labelowanie danych
+TODO:

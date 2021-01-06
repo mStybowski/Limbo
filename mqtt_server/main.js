@@ -68,21 +68,26 @@ class MQTTClient{
             let dataPackets = _dataPackets["time series"];
             // console.log("Received from preprocessing: " + _dataPackets);
 
-            dataPackets.forEach((el) => {
-                currentInterface.rawData.push(el);
-            });
+            if(this.state.mode === "predict"){
+                dataPackets.forEach((el) => {
+                    currentInterface.rawData.push(el);
+                });
 
-            console.log(currentInterface.rawData);
-            console.log("LENGTH: " + currentInterface.rawData.length);
-            if(currentInterface.rawData.length >= this.interfacesConfig[_interface].rawBufferSize){
-                let _obj = {};
-                _obj["features"] = currentInterface.rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize);
-                
-                let toSend = JSON.stringify(_obj);
-                console.log(toSend);
-               
-                currentInterface.classifier.send(toSend); // To jest przekazanie dalej
-                currentInterface.rawData = currentInterface.rawData.slice(this.interfacesConfig[_interface].rawBufferSize,200);
+                console.log(currentInterface.rawData);
+                console.log("LENGTH: " + currentInterface.rawData.length);
+                if(currentInterface.rawData.length >= this.interfacesConfig[_interface].rawBufferSize){
+                    let _obj = {};
+                    _obj["features"] = currentInterface.rawData.slice(0,this.interfacesConfig[_interface].rawBufferSize);
+
+                    let toSend = JSON.stringify(_obj);
+                    console.log(toSend);
+
+                    currentInterface.classifier.send(toSend); // To jest przekazanie dalej
+                    currentInterface.rawData = currentInterface.rawData.slice(this.interfacesConfig[_interface].rawBufferSize,200);
+                }
+            }
+            else if(this.state.mode === "learn"){
+
             }
         }
         else{
