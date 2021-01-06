@@ -104,11 +104,21 @@ class MQTTClient{
         }
     }
 
-    createInterfaceHandler(_interface){
+    sensorInterface(){
+
+    }
+
+    pipeline(interfaceName) {
+        this.make = make;
+        this.model = model;
+        this.year = year;
+      }
+
+    createPipeline(_interface){
         if(this.interfacesConfig[_interface]){
             let interfaceConf = this.interfacesConfig[_interface];
             //Use method instead of modyfing data directly
-            this.onlineInterfaces[_interface] = {
+            this.onlineInterfaces[_interface] = new this.sensorInterface(_interface);
                 preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, (features) => {this.postPreprocessing(_interface, features)}, {
                     mode: 'text',
                     scriptPath: './python_scripts/',
