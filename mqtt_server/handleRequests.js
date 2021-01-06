@@ -23,6 +23,9 @@ function handleRequests(object, topicList, message){
                 //TODO: if no interface specified then throw a warning
 
         }
+        else if(topicList[0] = "runScript"){
+                object.runOnce(script);
+        }
 
 
 }

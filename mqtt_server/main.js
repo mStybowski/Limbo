@@ -44,6 +44,10 @@ class MQTTClient{
         fs.writeFileSync('./conf/interfaces.json', JSON.stringify(this.interfacesConfig));
     }
 
+    runOnce(script){
+        PythonInterpreter.run(script, (err, res) => {console.log(res)})
+    }
+
     handleRawData(_interface, message){
         if(this.onlineInterfaces[_interface]){
             let currentInterface = this.onlineInterfaces[_interface];
@@ -59,6 +63,11 @@ class MQTTClient{
     serverLog(payload, type){
         let message = {type, payload}
         this.client.publish("serverLogs", JSON.stringify(message));
+    }
+
+    processClassifierResult(message){
+        console.log(message);
+        this.send("Classification", message);
     }
 
     postPreprocessing(_interface, message){
@@ -100,9 +109,15 @@ class MQTTClient{
             let interfaceConf = this.interfacesConfig[_interface];
             //Use method instead of modyfing data directly
             this.onlineInterfaces[_interface] = {
-                preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, (features) => {this.postPreprocessing(_interface, features)}),
-                trainer: PythonInterpreter.spawn(interfaceConf.train, this.consoleLogData),
-                classifier: PythonInterpreter.spawn(interfaceConf.classify, this.consoleLogData),
+                preprocessor: PythonInterpreter.spawn(interfaceConf.preprocessor, (features) => {this.postPreprocessing(_interface, features)}, {
+                    mode: 'text',
+                    scriptPath: './python_scripts/',
+                    pythonOptions: ['-u'], // get print results in real-time
+                    // args: ["-t", "emg", "-w", "200", "-s", "300", "-b", "300"]
+                    args: ["-h"]
+                }),
+                // trainer: PythonInterpreter.spawn(interfaceConf.train, this.consoleLogData),
+                // classifier: PythonInterpreter.spawn(interfaceConf.classify, this.processClassifierResult),
                 rawData: []
             }
 
@@ -121,6 +136,8 @@ class MQTTClient{
         
         console.log(data);
     }
+
+
     
     processDataFromPreprocessor(message){
         console.log(message)
