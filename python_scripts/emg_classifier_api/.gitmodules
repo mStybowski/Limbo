@@ -1,0 +1,4 @@
+[submodule "abstract_classifier_limbo"]
+	path = abstract_classifier_limbo
+	url = https://bitbucket.org/ciestudents/abstract_classifier_limbo
+	branch = master
