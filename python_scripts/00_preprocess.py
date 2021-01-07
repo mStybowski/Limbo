@@ -12,7 +12,8 @@ def get_args(argv):
 
     # Help message
     help_mess = '''
-        00_preprocess.py -t <sensor_type> -w <time_window> -s <stride> -b <buffer_size>
+        00_preprocess.py -f -t <sensor_type> -w <time_window> -s <stride> -b <buffer_size>
+        
         sensor_type: "emg" / "mmg"
         time_window: time window width (in microseconds)
         stride: step distance that the window moves to get another time window (in microseconds)
@@ -29,7 +30,7 @@ def get_args(argv):
             print(help_mess)
             sys.exit()
         elif opt in ("-t", "--sensor_type"):
-            sensor = arg
+            sensor_type = arg
         elif opt in ("-w", "--window"):
             window = arg
         elif opt in ("-s", "--stride"):
@@ -42,36 +43,20 @@ def get_args(argv):
 
 def create_preprocessor(sensor_type, window, stride, buffer_size):
     if sensor_type == 'emg':
-        import emglimbo
+        from emg_classifier_api import emglimbo
         preprocessor = emglimbo.EMG_Preprocessor(window, stride, buffer_size)
     elif sensor_type == 'mmg':
-        import mmglimbo
-        preprocessor = mmglimbo.MMG_Preprocessor(window, stride, buffer_size)
+        from emg_classifier_api import emglimbo
+        preprocessor = emglimbo.EMG_Preprocessor(window, stride, buffer_size)
     else:
         raise Exception('Required argument sensor_type must be "emg" or "mmg"! Use -h option to print help.')
     return preprocessor
-
-'''
-    def on_message(client, userdata, msg):
-        try:
-            prepared_samples = process_message(str(msg.payload.decode('utf-8')))
-            for sample in prepared_samples:
-                circular_buffer.append(sample)
-                if circular_buffer.get_portion_size(time_window=2000000) >= 100:
-                    print(json.dumps(
-                        get_accelerometer_features(circular_buffer.get_portion(time_window=2000000, stride=100))))
-        except JSONDecodeError:
-            print('Json decode error.')
-            '''
 
 
 def preprocess(preprocessor):
 
     try:
         for line in sys.stdin:
-            # If user type 'exit', terminate script
-            if line == 'exit':
-                sys.exit()
 
             preprocessor.preprocess(line)
 

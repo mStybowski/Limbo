@@ -4,7 +4,7 @@ import struct
 import json
 from scipy import signal
 
-import emglimbo.constants as constants
+from . import constants
 
 
 def filter_signals(s: np.ndarray, fs: int) -> np.ndarray:

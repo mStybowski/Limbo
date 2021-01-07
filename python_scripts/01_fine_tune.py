@@ -6,18 +6,21 @@ import getopt
 
 def get_args(argv):
     # Sensor type
-    sensor = ''
+    sensor_type = ''
     model_path = 'model.tar'
+    fake_flag = False  # class methods returns some example data (for testing)
 
     # Help message
     help_mess = '''
-    01_fine_tune.py -t <sensor_type> -m <model_path>
+    01_fine_tune.py -f -t <sensor_type> -m <model_path>
+    
+    f: fake flag - when given class methods returns some example data (for testing)
     sensor_type: "emg" / "mmg"
     model_path: path to the model
     '''
 
     try:
-        opts, args = getopt.getopt(argv, "ht:m:", ["sensor_type=", "model_path="])
+        opts, args = getopt.getopt(argv, "hft:m:", ["sensor_type=", "model_path="])
     except getopt.GetoptError:
         print(help_mess)
         sys.exit(2)
@@ -25,21 +28,23 @@ def get_args(argv):
         if opt == '-h':
             print(help_mess)
             sys.exit()
+        elif opt == '-f':
+            fake_flag = True
         elif opt in ("-t", "--sensor_type"):
-            sensor = arg
+            sensor_type = arg
         elif opt in ("-m", "--model_path"):
             model_path = arg
 
-    return sensor, model_path
+    return sensor_type, model_path, fake_flag
 
 
-def create_classifier(sensor_type, model_path):
+def create_classifier(sensor_type, model_path, fake_flag):
     if sensor_type == 'emg':
-        import emglimbo
-        classifier = emglimbo.EMGClassifier(model_path)
+        from emg_classifier_api import emglimbo
+        classifier = emglimbo.EMGClassifier(model_path, fake=fake_flag)
     elif sensor_type == 'mmg':
-        import emglimbo
-        classifier = emglimbo.EMGClassifier(model_path)
+        from emg_classifier_api import emglimbo
+        classifier = emglimbo.EMGClassifier(model_path, fake=fake_flag)
     else:
         raise Exception('Required argument sensor_type must be "emg" or "mmg"! Use -h option to print help.')
     return classifier
@@ -47,27 +52,33 @@ def create_classifier(sensor_type, model_path):
 
 def fine_tune(classifier, model_path):
 
+    buffer = {'features': [], 'labels': []}
+
     try:
         for line in sys.stdin:
-            # If user type 'exit', terminate script
-            if line == 'exit':
-                # Save model
-                classifier.save_model(model_path)
-
-                sys.exit()
-
             # Get features from json
             clean_line = ''.join(line.split())
             input_json = json.loads(clean_line)
             features = np.array(input_json['features'])
             label = input_json['label']
 
-            # TODO check "command" in json: if "gather" collect features and labels, if "finish" fined tune the model
+            command = input_json['command']
 
-            # Fine tune
-            success = classifier.train(features, label, fake=True)
-            if success:
-                print(f"Successful fine tuning.")
+            if command == "gather":
+                buffer['features'].append(features)
+                buffer['labels'].append(label)
+            elif command == "finish":
+                # Fine tune
+                print(buffer)
+                success = classifier.train(buffer["features"], buffer["labels"])
+                if success:
+                    print(f"Successful fine tuning.")
+                buffer = {'features': [], 'labels': []}
+
+                # Save model
+                classifier.save_model(model_path)
+
+                sys.exit()
 
     except KeyboardInterrupt:
         # Save model
@@ -77,9 +88,10 @@ def fine_tune(classifier, model_path):
 
 
 if __name__ == "__main__":
-    sensor_type, model_path = get_args(sys.argv[1:])
-    classifier = create_classifier(sensor_type, model_path)
+    sensor_type, model_path, fake_flag = get_args(sys.argv[1:])
+    classifier = create_classifier(sensor_type, model_path, fake_flag)
     fine_tune(classifier, model_path)
 
 # Input
-'''{"features":[2, 1, 2, 3],"label":[1, 0, 0, 0]}'''
+'''{"features":[2, 1, 2, 3],"label":"idle", "command":"gather"}'''
+'''{"features":[],"label":"idle", "command":"finish"}'''

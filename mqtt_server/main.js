@@ -29,10 +29,13 @@ class MQTTClient{
     pipeline = {};
     recording = false;
 
+    getInterfacesConfiguration(){
+        return this.interfacesConfig;
+    }
+
     clearCache(){
         this.pipeline.cache = [];
         this.pipeline.learnCache = [];
-        
     }
 
     setGesture(gesture){
@@ -40,7 +43,6 @@ class MQTTClient{
     }
 
     startRecording(){
-
         this.learningBuffer = [];
         console.log(this.recording)
         this.recording = true;
@@ -64,7 +66,6 @@ class MQTTClient{
 
         this.send("broadcast", "Recording Finished");
 
-
     }
 
     setMode(mode){
@@ -75,7 +76,7 @@ class MQTTClient{
 
     serverLogs(_payload, type="info", verbose=false){
         let messageObject = {
-            payload: type + ": " + _payload,
+            payload: _payload,
             type: type,
             verbose
         }
@@ -165,11 +166,11 @@ class MQTTClient{
         };
 
         let preprocessorOpt = {...defaultOptions, args: ["-t", interfaceName, "-w", interfaceConf.time_window, "-s", interfaceConf.stride,"-b", interfaceConf.buffer_size]}
-        let fineTunerOpt = {...defaultOptions, args: ["-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.
-        let classifierOpt = {...defaultOptions, args: ["-t", interfaceName, "-m", "blah.py"]} //TODO wpisz sciezke do modelu. Ona jest stała.
+        let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.
+        let classifierOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", "blah.py"]} //TODO wpisz sciezke do modelu. Ona jest stała.
 
         return {
-            preprocessor: PythonInterpreter.spawn("00_preprocess.py", this.postPreprocessing, preprocessorOpt),
+            // preprocessor: PythonInterpreter.spawn("00_preprocess.py", this.postPreprocessing, preprocessorOpt),
             fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
             classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
             cache:[]
@@ -241,7 +242,12 @@ class MQTTClient{
     }
 
     listen(ip){
+        if(this.state.connected)
+            return
+
         const client = mqtt.connect(ip);
+        
+
         client.on("disconnect", () => {
             this.setServerState({
                 connected: false,

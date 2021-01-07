@@ -1,2 +1,0 @@
-from emglimbo.emg_classifier import EMGClassifier
-from emglimbo.circular_queue import CircularQueue

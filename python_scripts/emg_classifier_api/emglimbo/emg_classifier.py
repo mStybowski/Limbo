@@ -5,8 +5,8 @@
 
 import numpy as np
 
-from emglimbo import constants
-from abstract_classifier_limbo import Classifier_Interface
+from . import constants
+from ..abstract_classifier_limbo import Classifier_Interface
 
 
 class EMGClassifier(Classifier_Interface):

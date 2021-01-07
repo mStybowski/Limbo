@@ -1,5 +1,6 @@
 function handleRequests(object, topicList, message){
         topicList.shift();
+
         if(topicList[0] === "state"){
                 object.send("server/state", JSON.stringify(object.state));
                 console.log("Wyslano server state");
@@ -12,7 +13,8 @@ function handleRequests(object, topicList, message){
                 object.send("server/onlineInterface", messageToSend);
         }
         else if(topicList[0] === "interfacesConfiguration"){
-
+                let messageToSend = JSON.stringify(object.getInterfacesConfiguration());
+                object.send("server/interfacesConfiguration", messageToSend);
         }
         else if(topicList[0] === "learning"){
                 //TODO: if no interface specified then throw a warning
@@ -20,8 +22,9 @@ function handleRequests(object, topicList, message){
         else if(topicList[0] === "learning/#"){
                 // TODO: Where # === gesture
         }
-        else if(topicList[0] = "runScript"){
-                object.runOnce(script);
+        else{
+                console.log(`Warning: I dont know this (${topicList[0]}) topic.`)
+                object.serverLogs(`I dont know this (${topicList[0]}) topic.`);
         }
 
 
