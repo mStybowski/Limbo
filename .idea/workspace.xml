@@ -2,10 +2,13 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="90238a34-f769-4576-ac08-c334e0f40e60" name="Default Changelist" comment="added python scripts">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_23_12_2020_17_19__Default_Changelist_.xml" beforeDir="false" />
+      <change afterPath="$PROJECT_DIR$/static_pages/failureSite.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/TODO.txt" beforeDir="false" afterPath="$PROJECT_DIR$/TODO.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/mqtt_server/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/mqtt_server/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/python_shell/main.js" beforeDir="false" afterPath="$PROJECT_DIR$/python_shell/main.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/static_pages/css_js/my_styles.css" beforeDir="false" afterPath="$PROJECT_DIR$/static_pages/css_js/my_styles.css" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -15,9 +18,9 @@
   <component name="FileTemplateManagerImpl">
     <option name="RECENT_TEMPLATES">
       <list>
-        <option value="HTML File" />
         <option value="JavaScript File" />
         <option value="tsconfig.json" />
+        <option value="HTML File" />
       </list>
     </option>
   </component>
@@ -73,6 +76,8 @@
       <workItem from="1609703974985" duration="1062000" />
       <workItem from="1609890922261" duration="16000" />
       <workItem from="1609890990038" duration="719000" />
+      <workItem from="1610226336395" duration="5000" />
+      <workItem from="1610226419445" duration="1388000" />
     </task>
     <task id="LOCAL-00001" summary="Static files upgraded">
       <created>1608291302564</created>

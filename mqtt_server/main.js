@@ -249,10 +249,17 @@ class MQTTClient{
     // CONNECTION ---------------------
 
     listen(ip){
+
+        let options = {
+            protocol: 'mqtts',
+            clientId: "LimboServer",
+            reconnectPeriod: 0
+        }
+
         if(this.state.connected)
             return
 
-        const client = mqtt.connect(ip);
+        const client = mqtt.connect(ip, options);
         
 
         client.on("disconnect", () => {
@@ -283,7 +290,7 @@ class MQTTClient{
             })
         })
         client.on("error", (err)=>{
-            console.log("Error: " + err)
+            console.log("Error: Could not connect to MQTT Broker.\nPlease check your MQTT Broker settings.")
         })
 
         client.on("message", (topic, mess)=>{
