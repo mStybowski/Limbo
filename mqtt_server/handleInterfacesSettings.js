@@ -1,25 +1,16 @@
-function checkCorrectness(message){
+const checkJSONCorrectness = require("./checkJSONCorrectness")
 
-    let parsedMessage = JSON.parse(message.toString());
+function handleInterfaces(object, topic, message){
 
-    if(!parsedMessage["interfaces"] || !Array.isArray(parsedMessage["interfaces"])){
-        console.log("Incorrect message");
-        return null;
+    let topicList = topic.split('/');
+
+    let parsedMessage = checkJSONCorrectness(message, true);
+
+    if(!parsedMessage){
+        console.log("Warning: Server received invalid message at topic: " + topic);
+        return
     }
 
-    else if(parsedMessage["interfaces"].length === 0){
-        console.log("Info: Nothing to do here.")
-        return null;
-    }
-    return parsedMessage;
-}
-
-function handleInterfaces(object, topicList, message){
-
-    let parsedMessage = checkCorrectness(message);
-
-    if(!parsedMessage)
-        return;
 
     topicList.shift();
     let interfaces = parsedMessage["interfaces"];

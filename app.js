@@ -25,6 +25,9 @@ function decideWhatToDo(res){
 
 }
 
+
+
+
 app.get("/failureSite", (req, res) => {
     res.sendFile(path.join(__dirname, "static_pages", "failureSite.html"));
 })

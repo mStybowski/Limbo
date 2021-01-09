@@ -301,12 +301,12 @@ class MQTTClient{
 
             // SENSOR DATA
             else if(parsedTopic[0] === "sensors"){
-                handleDataFlow(this, parsedTopic, mess);
+                handleDataFlow(this, topic, mess);
             }
 
             // INTERFACES
             else if(parsedTopic[0] === "interfaces"){
-                handleInterfaces(this, parsedTopic, mess);
+                handleInterfaces(this, topic, mess);
             }
 
             else if(parsedTopic[0] === "command"){
