@@ -251,9 +251,8 @@ class MQTTClient{
     listen(ip){
 
         let options = {
-            protocol: 'mqtts',
             clientId: "LimboServer",
-            reconnectPeriod: 0
+            reconnectPeriod: 5
         }
 
         if(this.state.connected)
