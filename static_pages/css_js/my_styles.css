@@ -66,6 +66,10 @@ p{
     background-color: #caefc6;
 }
 
+.errorTip{
+    color: #be4b6b;
+}
+
 #info{
     font-size: 13px;
     font-weight: bold;

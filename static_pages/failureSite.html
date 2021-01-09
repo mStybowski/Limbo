@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Limbo - Connection failure</title>
+    <link href="./css_js/my_styles.css" rel="stylesheet" type="text/css"/>
+</head>
+<body>
+<div id="wrapper">
+    <h1>Couldn't connect to MQTT Broker</h1>
+    <div class="form">
+        <form method="POST" action="/attemptconnection">
+            <input type="text" name="ip" placeholder="e.g. ws://192.168.2.179:8083/mqtt" value="ws://localhost:8083/mqtt"/>
+            <input type="submit" value="Connect"/>
+        </form>
+        <p class="errorTip">You must provide a valid protocole, ip and port to connect to your broker.<br>Sometimes a basepath is also required.</p>
+    </div>
+</div>
+
+
+
+</body>
+</html>

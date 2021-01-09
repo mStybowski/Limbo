@@ -17,10 +17,22 @@ app.use(express.static(path.join(__dirname, 'static_pages')));
 
 client.loadInterfaces();
 
+function decideWhatToDo(res){
+    if(client.state.connected)
+        res.redirect("/panel")
+    else
+        res.redirect("/failureSite")
+
+}
+
+app.get("/failureSite", (req, res) => {
+    res.sendFile(path.join(__dirname, "static_pages", "failureSite.html"));
+})
+
 app.post("/attemptconnection", (req, res) => {
 
     client.listen(req.body.ip);
-    setTimeout(() => {res.redirect("/panel")}, 700);
+    setTimeout(()=>{decideWhatToDo(res)}, 700);
 })
 
 app.get("/panel", (req, res) => {
@@ -29,6 +41,16 @@ app.get("/panel", (req, res) => {
     }
     else{
         res.redirect("/login")
+    }
+
+})
+
+app.get("/", (req, res) => {
+    if(client.state.connected){
+        res.sendFile(path.join(__dirname, "static_pages", "panel.html"));
+    }
+    else{
+        res.sendFile(path.join(__dirname, "static_pages", "login.html"));
     }
 
 })
