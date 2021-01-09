@@ -3,8 +3,7 @@ function handleDataFlow(object, topicList, message){
     topicList.shift();
 
     if(object.interfacesConfig[topicList[0]]){
-        console.log(object.state)
-        object.handleRawData(topicList[0], JSON.parse(message.toString()));
+        object.handleRawData(topicList[0], message.toString());
 
     }
     else{

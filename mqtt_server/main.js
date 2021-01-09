@@ -24,15 +24,104 @@ class MQTTClient{
     state={
         connected: false,
         mqttBrokerIP: "",
-        mode: "idle" // idle || learn || predict
+        mode: "idle"
     }
     
     onlineInterface;
     pipeline = {};
     recording = false;
 
+    // GETTERS -------------------------------
+
     getInterfacesConfiguration(){
         return this.interfacesConfig;
+    }
+
+    getServerMode(){
+        return this.state.mode;
+    }
+
+    getOnlineInterface(){
+        return this.onlineInterface;
+    }
+
+    // SETTERS ------------------------------
+
+    setMode(mode){
+        this.clearCache();
+        this.state.mode = mode;
+        console.log("Changed mode to: " + this.state.mode);
+    }
+
+    setOnlineInterface(newInterface){
+        this.onlineInterface = newInterface;
+    }
+
+    setGesture(gesture){
+        this.currentGesture = gesture;
+    }
+
+    setServerState(newState){
+        this.state = {...this.state, ...newState};
+        this.send("server/state", JSON.stringify(this.state));
+        console.log("Server state changed to: " + this.state);
+    }
+
+    // UTILITIES ------------------------------
+
+    send(topic, message){
+        this.client.publish(topic, message);
+    }
+
+    runOnce(script){
+        PythonInterpreter.run(script, (err, res) => {console.log(res)})
+    }
+
+    isInterfaceOnline(_interface){
+        return this.onlineInterface === _interface;
+    }
+
+    configurePipelineFor(interfaceName) {
+
+        let interfaceConf = this.interfacesConfig[interfaceName];
+
+        let defaultOptions = {
+            mode: 'text',
+            scriptPath: './python_scripts/',
+            pythonOptions: ['-u'], // get print results in real-time
+        };
+
+        let preprocessorOpt = {...defaultOptions, args: ["-t", interfaceName, "-w", interfaceConf.time_window, "-s", interfaceConf.stride,"-b", interfaceConf.buffer_size]}
+        let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.
+        let classifierOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", "blah.py"]} //TODO wpisz sciezke do modelu. Ona jest stała.
+
+        return {
+            preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {this.postPreprocessing(message)} , preprocessorOpt),
+            // fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
+            // classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
+            cache:[]
+        }
+
+    }
+
+    createPipeline(_interface){
+        if(this.interfacesConfig[_interface]){
+
+            let newPipeline = this.configurePipelineFor(_interface);
+            this.savePipeline(_interface, newPipeline);
+
+            console.log("Success: Created " + this.onlineInterface + " interface.");
+            console.log(this.state);
+        }
+
+        else
+            console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
+    
+    }
+
+    savePipeline(_interface, _pipeline){
+        this.onlineInterface = _interface;
+        this.pipeline = _pipeline;
     }
 
     clearCache(){
@@ -40,45 +129,7 @@ class MQTTClient{
         this.pipeline.learnCache = [];
     }
 
-    setGesture(gesture){
-        this.currentGesture = gesture;
-    }
-
-    startRecording(){
-        this.learningBuffer = [];
-        console.log(this.recording)
-        this.recording = true;
-        console.log(this.recording)
-        console.log("Recording Started");
-        this.send("broadcast", "Recording Started");
-
-        setTimeout(()=>{this.recording = false;console.log(this.recording); this.sendLearningBuffer()}, 3500)
-    }
-
-    sendLearningBuffer(){
-
-        let objToSend = {
-            command: "gather",
-            data: this.learningBuffer,
-            gesture: this.currentGesture
-        }
-        console.log("Recording finished");
-
-        this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
-
-        this.send("broadcast", "Recording Finished");
-
-    }
-
-    setMode(mode){
-        this.clearCache();
-        this.state.mode = mode;
-        console.log("Changed mode to " + this.state.mode);
-    }
-
-    getServerMode(){
-        return this.state.mode;
-    }
+    // MQTT LOGS PUBLISHER --------------------
 
     serverLogs(_payload, type="info", verbose=false){
         let messageObject = {
@@ -89,49 +140,29 @@ class MQTTClient{
         this.client.publish("serverLogs", JSON.stringify(messageObject));
     }
 
-    loadInterfaces(){
-        let rawData = fs.readFileSync('./conf/interfaces.json');
-        this.interfacesConfig = JSON.parse(rawData.toString());
-        console.log(this.interfacesConfig);
-        this.saveInterfaces();
-    }
+    // Data handlers --------------------------
 
-    saveInterfaces(){
-        fs.writeFileSync('./conf/interfaces.json', JSON.stringify(this.interfacesConfig));
-    }
-
-    runOnce(script){
-        PythonInterpreter.run(script, (err, res) => {console.log(res)})
-    }
-
-    //TODO Rozważ zmianę nazwy poniższej funkcji
     handleRawData(_interface, message){
-        if(this.isInterfaceOnline(_interface)){
-            let currentInterface = this.onlineInterface;
-
-            this.pipeline.preprocessor.send(JSON.stringify(message));
-        }
-        else{
+        if(this.isInterfaceOnline(_interface))
+            this.pipeline.preprocessor.send(message);
+        else
             console.log("Info: Topic '" + _interface + "' is not used at the moment. First you must turn it on.");
-        }
-    }
-
-    serverLog(payload, type){
-        let message = {type, payload}
-        this.client.publish("serverLogs", JSON.stringify(message));
-    }
-
-    processClassifierResult(message){
-        console.log(message);
-        this.send("Classification", message);
     }
 
     postPreprocessing(message){
 
-        console.log(message);
-        console.log("MODE: " + this.state);
-        let currentInterface = this.onlineInterface;
-        let _dataPackets = JSON.parse(message);
+        if(this.state.mode === "idle"){
+            console.log("IDLE: " + message)
+            return;
+        }
+
+        try{
+            let _dataPackets = JSON.parse(message);
+        }
+        catch{
+            console.log("Odebrano niepoprawne dane")
+            return;
+        }
         let dataPackets = _dataPackets["time series"]; // TODO: Tutaj nazwa właściwosci z obiektu otrzymanego z preprocesora
 
             if(this.state.mode === "predict"){
@@ -164,29 +195,6 @@ class MQTTClient{
 
     }
 
-    configurePipelineFor(interfaceName) {
-
-        let interfaceConf = this.interfacesConfig[interfaceName];
-
-        let defaultOptions = {
-            mode: 'text',
-            scriptPath: './python_scripts/',
-            pythonOptions: ['-u'], // get print results in real-time
-        };
-
-        let preprocessorOpt = {...defaultOptions, args: ["-t", interfaceName, "-w", interfaceConf.time_window, "-s", interfaceConf.stride,"-b", interfaceConf.buffer_size]}
-        let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.
-        let classifierOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", "blah.py"]} //TODO wpisz sciezke do modelu. Ona jest stała.
-
-        return {
-            preprocessor: PythonInterpreter.spawn("00_preprocess.py", this.postPreprocessing, preprocessorOpt),
-            // fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
-            // classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
-            cache:[]
-        }
-
-    }
-
     postClassifier(message){
         console.log(message);
     }
@@ -195,61 +203,46 @@ class MQTTClient{
         console.log(message);
     }
 
-    savePipeline(_interface, pipeline){
-        this.onlineInterface = _interface;
-        this.pipeline = pipeline;
+    // INTERFACES --------------------------
+
+    loadInterfaces(){
+        let rawData = fs.readFileSync('./conf/interfaces.json');
+        this.interfacesConfig = JSON.parse(rawData.toString());
+        console.log(this.interfacesConfig);
+        this.saveInterfaces();
     }
 
-    isInterfaceOnline(_interface){
-        return this.onlineInterface === _interface;
+    saveInterfaces(){
+        fs.writeFileSync('./conf/interfaces.json', JSON.stringify(this.interfacesConfig));
     }
 
-    getOnlineInterface(){
-        return this.onlineInterface;
+    startRecording(){
+        this.learningBuffer = [];
+        console.log(this.recording)
+        this.recording = true;
+        console.log(this.recording)
+        console.log("Recording Started");
+        this.send("broadcast", "Recording Started");
+
+        setTimeout(()=>{this.recording = false;console.log(this.recording); this.sendLearningBuffer()}, 3500)
     }
 
-    createPipeline(_interface){
-        if(this.interfacesConfig[_interface]){
+    sendLearningBuffer(){
 
-            let newPipeline = this.configurePipelineFor(_interface);
-            this.savePipeline(_interface, newPipeline);
-
-            console.log("Success: Created " + this.onlineInterface + " interface.");
+        let objToSend = {
+            command: "gather",
+            data: this.learningBuffer,
+            gesture: this.currentGesture
         }
+        console.log("Recording finished");
 
-        else
-            console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
-    
+        this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
+
+        this.send("broadcast", "Recording Finished");
+
     }
 
-
-    setOnlineInterfaces(newInterface){
-        // TODO
-    }
-
-    consoleLogData(data){
-        
-        console.log(data);
-    }
-
-
-    
-    processDataFromPreprocessor(message){
-        console.log(message)
-    }
-
-    updatePythonScripts(){
-        let that = this;
-        fs.readdir(path.join(__dirname, '../pythonScripts'), (err, files) => {
-            that.pythonFiles = files.slice();
-        });
-    }
-
-    setServerState(newState){
-        console.log("zmieniam stan sderversa")
-        this.state = {...this.state, ...newState};
-        this.send("server/state", JSON.stringify(this.state));
-    }
+    // CONNECTION ---------------------
 
     listen(ip){
         if(this.state.connected)
@@ -259,19 +252,23 @@ class MQTTClient{
         
 
         client.on("disconnect", () => {
-            this.setServerState({
-                connected: false,
-                mqttBrokerIP: "",
-                mode: "idle"
-            });
+            this.setServerState(
+                {
+                    connected: false,
+                    mqttBrokerIP: "",
+                    mode: "idle"
+                }
+            );
         })
         client.on("connect", () => {
 
-            this.setServerState({
-                connected: true,
-                mqttBrokerIP: ip,
-                mode: "idle"
-            });
+            this.setServerState(
+                {
+                    connected: true,
+                    mqttBrokerIP: ip,
+                    mode: "idle"
+                }
+            );
 
             console.log("Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP);
 
@@ -308,21 +305,6 @@ class MQTTClient{
         })
         this.client = client;
     }
-
-    send(topic, message){
-        this.client.publish(topic, message);
-    }
-
-    getInterfaces() {
-        if(this.interfacesConfig)
-            return this.interfacesConfig;
-        else
-            return "There is none";
-    }
-
-
-
-
 }
 
 module.exports = MQTTClient
