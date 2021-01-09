@@ -1,1 +1,0 @@
-from emglimbo.emg_classifier import EMGClassifier

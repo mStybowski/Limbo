@@ -1,1 +1,1 @@
-{"emg":{"preprocessor":"00_preprocess.py","train":"01_fine_tune.py","classify":"02_classify.py","rawBufferSize":200},"mmg":{"preprocessor":"preprocessor.py","train":"01_fine_tune.py","classify":"02_classify.py","rawBufferSize":30},"test":{"preprocessor":"test_preprocessor.py","train":"test_01_fine_tune.py","classify":"test_02_classify.py","rawBufferSize":3}}
+{"emg":{"time_window":30,"stride":50,"buffer_size":200}}

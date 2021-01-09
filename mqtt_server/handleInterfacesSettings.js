@@ -72,11 +72,11 @@ function handleInterfaces(object, topicList, message){
     
     else if(topicList[0] === "use"){
         interfaces.forEach((el) => {
-            if(!object.onlineInterfaces[el])
-                object.createInterfaceHandler(el);
+            if(!object.isInterfaceOnline(el))
+                object.createPipeline(el);
             
             else
-                console.log("Warning: " + el + " interface is already online"); 
+                console.log("Warning: " + el + " pipeline is already online"); 
         })
     }
 
