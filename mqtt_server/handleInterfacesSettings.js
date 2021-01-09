@@ -4,7 +4,7 @@ function handleInterfaces(object, topic, message){
 
     let topicList = topic.split('/');
 
-    let parsedMessage = checkJSONCorrectness(message, true);
+    let parsedMessage = checkJSONCorrectness(message, true); // TODO: rozdziel osobno check correctness osbono parse. W funckji parse odpal check correctness
 
     if(!parsedMessage){
         console.log("Warning: Server received invalid message at topic: " + topic);

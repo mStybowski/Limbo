@@ -25,9 +25,6 @@ function decideWhatToDo(res){
 
 }
 
-
-
-
 app.get("/failureSite", (req, res) => {
     res.sendFile(path.join(__dirname, "static_pages", "failureSite.html"));
 })
@@ -73,5 +70,5 @@ app.get("/panelforce", (req, res) => {
 })
 
 app.listen(8080, () => {
-    console.log("Server running")
+    console.log("\x1b[32m", "✔ Server running (1/2)", "\x1b[0m")
 });

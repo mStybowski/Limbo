@@ -64,7 +64,6 @@ class MQTTClient{
     setServerState(newState){
         this.state = {...this.state, ...newState};
         this.send("server/state", JSON.stringify(this.state));
-        console.log("Server state changed to: " + this.state);
     }
 
     // UTILITIES ------------------------------
@@ -113,7 +112,6 @@ class MQTTClient{
             this.savePipeline(_interface, newPipeline);
 
             console.log("Success: Created " + this.onlineInterface + " interface.");
-            console.log(this.state);
         }
 
         else
@@ -212,7 +210,6 @@ class MQTTClient{
     loadInterfaces(){
         let rawData = fs.readFileSync('./conf/interfaces.json');
         this.interfacesConfig = JSON.parse(rawData.toString());
-        console.log(this.interfacesConfig);
         this.saveInterfaces();
     }
 
@@ -280,7 +277,7 @@ class MQTTClient{
                 }
             );
 
-            console.log("Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP);
+            console.log("\x1b[32m", "✔ Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP + " (2/2)\x1b[0m");
 
             client.subscribe(['sensors/#', 'wills', 'request/#', "interfaces/#", "command/#"], function (err) {
                 if (!err) {
