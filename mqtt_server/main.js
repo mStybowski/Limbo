@@ -95,12 +95,14 @@ class MQTTClient{
         let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.
         let classifierOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", "blah.py"]} //TODO wpisz sciezke do modelu. Ona jest stała.
 
-        return {
+        let temporaryInterface = {
             preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {this.postPreprocessing(message)} , preprocessorOpt),
-            // fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
-            // classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
-            cache:[]
-        }
+            fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
+            classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
+            cache: []
+        };
+
+        return temporaryInterface
 
     }
 
@@ -157,12 +159,14 @@ class MQTTClient{
         }
 
         try{
-            let _dataPackets = JSON.parse(message);
+            JSON.parse(message);
         }
         catch{
             console.log("Odebrano niepoprawne dane")
             return;
         }
+
+        let _dataPackets = JSON.parse(message);
         let dataPackets = _dataPackets["time series"]; // TODO: Tutaj nazwa właściwosci z obiektu otrzymanego z preprocesora
 
             if(this.state.mode === "predict"){
