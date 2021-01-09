@@ -20,11 +20,13 @@ const PythonInterpreter = require("../python_shell/main")
 class MQTTClient{
 
     client;
+
     state={
         connected: false,
         mqttBrokerIP: "",
         mode: "idle" // idle || learn || predict
     }
+    
     onlineInterface;
     pipeline = {};
     recording = false;
@@ -74,6 +76,10 @@ class MQTTClient{
         console.log("Changed mode to " + this.state.mode);
     }
 
+    getServerMode(){
+        return this.state.mode;
+    }
+
     serverLogs(_payload, type="info", verbose=false){
         let messageObject = {
             payload: _payload,
@@ -102,9 +108,8 @@ class MQTTClient{
     handleRawData(_interface, message){
         if(this.isInterfaceOnline(_interface)){
             let currentInterface = this.onlineInterface;
-            console.log(message);
 
-            pipeline.preprocessor.send(JSON.stringify(message));
+            this.pipeline.preprocessor.send(JSON.stringify(message));
         }
         else{
             console.log("Info: Topic '" + _interface + "' is not used at the moment. First you must turn it on.");
@@ -122,9 +127,9 @@ class MQTTClient{
     }
 
     postPreprocessing(message){
-        if(this.state.mode === "idle"){
-            console.log(message);
-        }
+
+        console.log(message);
+        console.log("MODE: " + this.state);
         let currentInterface = this.onlineInterface;
         let _dataPackets = JSON.parse(message);
         let dataPackets = _dataPackets["time series"]; // TODO: Tutaj nazwa właściwosci z obiektu otrzymanego z preprocesora
@@ -157,7 +162,8 @@ class MQTTClient{
                 console.log("Server is in idle mode. Consider turning on different mode.")
             }
 
-        }
+    }
+
     configurePipelineFor(interfaceName) {
 
         let interfaceConf = this.interfacesConfig[interfaceName];
@@ -174,8 +180,8 @@ class MQTTClient{
 
         return {
             preprocessor: PythonInterpreter.spawn("00_preprocess.py", this.postPreprocessing, preprocessorOpt),
-            fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
-            classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
+            // fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
+            // classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
             cache:[]
         }
 
@@ -240,6 +246,7 @@ class MQTTClient{
     }
 
     setServerState(newState){
+        console.log("zmieniam stan sderversa")
         this.state = {...this.state, ...newState};
         this.send("server/state", JSON.stringify(this.state));
     }
