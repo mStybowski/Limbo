@@ -25,7 +25,6 @@ function decideWhatToDo(res){
         res.redirect("/panel")
     else
         res.redirect("/failureSite")
-
 }
 
 app.get("/failureSite", (req, res) => {
@@ -33,39 +32,29 @@ app.get("/failureSite", (req, res) => {
 })
 
 app.post("/attemptconnection", (req, res) => {
-
     client.listen(req.body.ip);
     setTimeout(()=>{decideWhatToDo(res)}, 700);
 })
 
 app.get("/panel", (req, res) => {
-    if(client.state.connected){
+    if(client.state.connected)
         res.sendFile(path.join(__dirname, "static_pages", "panel.html"));
-    }
-    else{
+    else
         res.redirect("/login")
-    }
-
 })
 
 app.get("/", (req, res) => {
-    if(client.state.connected){
+    if(client.state.connected)
         res.sendFile(path.join(__dirname, "static_pages", "panel.html"));
-    }
-    else{
+    else
         res.sendFile(path.join(__dirname, "static_pages", "login.html"));
-    }
-
 })
 
 app.get("/login", (req, res) => {
-    if(client.state.connected){
+    if(client.state.connected)
         res.sendFile(path.join(__dirname, "static_pages", "logout.html"));
-    }
-    else{
+    else
         res.sendFile(path.join(__dirname, "static_pages", "login.html"));
-    }
-
 })
 
 app.get("/panelforce", (req, res) => {

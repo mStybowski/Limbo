@@ -1,6 +1,5 @@
 const checkJSONCorrectness = require("./checkJSONCorrectness")
 
-
 function handleDataFlow(object, topic, message){
 
     let parsedMessage = checkJSONCorrectness(message);
@@ -13,7 +12,6 @@ function handleDataFlow(object, topic, message){
     let topicList = topic.split('/');
     topicList.shift();
 
-
     if(object.interfacesConfig[topicList[0]]){
         object.handleRawData(topicList[0], message.toString());
 
@@ -22,10 +20,6 @@ function handleDataFlow(object, topic, message){
         //TODO Wyślij do gui info że nie rozpoznano danych
         console.log("Warning: Received data at unconfigured topic: " + topicList[0]);
     }
-
-
-
-
 }
 
 module.exports = handleDataFlow;

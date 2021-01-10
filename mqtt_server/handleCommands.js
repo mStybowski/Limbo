@@ -14,7 +14,6 @@ function handleCommands(object, topicList, message){
         
     }
 
-    
     else if(topicList[0] === "gesture"){
         object.setGesture(parsedMessage);
     }

@@ -7,8 +7,6 @@ let defaultOptions = {
     pythonOptions: ['-u'], // get print results in real-time
     args: ['1', '2', '3']
 };
-
-
 class PythonInterpreter{
 
     static spawn(url, onMessageCallback, options = defaultOptions){

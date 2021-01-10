@@ -5,18 +5,10 @@ const handleDataFlow = require("./handleDataFlow")
 const handleInterfaces = require("./handleInterfacesSettings")
 const handleCommands = require("./handleCommands")
 
-const testFolder = '../pythonScripts';
 const fs = require('fs');
 const path = require("path")
+
 const PythonInterpreter = require("../python_shell/main")
-
-
-// enum Mode = {
-//     Idle = "idle",
-//     Learn = "learn",
-//     Predict = "predict"
-// }
-
 class MQTTClient{
 
     client;

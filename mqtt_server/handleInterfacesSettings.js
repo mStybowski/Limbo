@@ -11,10 +11,8 @@ function handleInterfaces(object, topic, message){
         return
     }
 
-
     topicList.shift();
     let interfaces = parsedMessage["interfaces"];
-
 
     if(topicList[0] === "add"){
 
