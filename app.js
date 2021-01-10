@@ -2,8 +2,11 @@ const express = require("express")
 const app = express();
 const MQTTClient = require("./mqtt_server/main")
 const path = require("path")
+const open = require("open")
 
 const client = new MQTTClient();
+
+const PORT = 3000;
 
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded({     // to support URL-encoded bodies
@@ -69,6 +72,7 @@ app.get("/panelforce", (req, res) => {
     res.sendFile(path.join(__dirname, "static_pages", "panel.html"));
 })
 
-app.listen(8080, () => {
+app.listen(PORT, () => {
     console.log("\x1b[32m", "✔ Server running (1/2)", "\x1b[0m")
+    open("http://localhost:" + PORT);
 });
