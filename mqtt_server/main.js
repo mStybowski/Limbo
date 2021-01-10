@@ -10,6 +10,8 @@ const acceptableTopics = require("./acceptableTopics")
 const fs = require('fs');
 const path = require("path")
 
+let subscribedTopics = ['sensors/log/+', 'sensors/data/+', 'wills', 'request/#', "interfaces/#", "command/#"];
+
 const PythonInterpreter = require("../python_shell/main")
 class MQTTClient{
 
@@ -281,7 +283,7 @@ class MQTTClient{
 
             console.log("\x1b[32m", "✔ Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP + " (2/2)\x1b[0m");
 
-            client.subscribe(['sensors/log/+', 'sensors/data/+', 'wills', 'request/#', "interfaces/#", "command/#"], function (err) {
+            client.subscribe(subscribedTopics, function (err) {
                 if (!err) {
                     client.publish('presence', 'Hello mqtt from server')
                 }
@@ -296,19 +298,29 @@ class MQTTClient{
 
             let parsedTopic = topic.split('/');
 
-            // if(isTopicValid(parsedTopic)){
-            //     console.log("This topic is unhandled");
-            //     return;
-            // }
+            // SENSORS
+            if(parsedTopic[0] === "sensors"){
+                handleSensors(this, topic, mess);
+                return;
+            }
+
+            if(!validateTopic(parsedTopic[0], topic)){
+                console.log("\x1b[33m%s\x1b[0m", "\n⚠️ Warning: Invalid topic: " + topic + "\n")
+                console.log("Available options are: ")
+
+                acceptableTopics[parsedTopic[0]].forEach((el)=>{
+                    console.log("\x1b[34m%s\x1b[0m", "🔹" + el);
+                })
+
+                return;
+            }
+
 
             // GUI REQUESTS
             if(parsedTopic[0] === "request")
                 handleRequests(this, parsedTopic, mess);
 
-            // SENSORS
-            else if(parsedTopic[0] === "sensors"){
-                handleSensors(this, topic, mess);
-            }
+
 
             // INTERFACES
             else if(parsedTopic[0] === "interfaces"){
@@ -318,43 +330,16 @@ class MQTTClient{
             else if(parsedTopic[0] === "command"){
                 handleCommands(this, parsedTopic, mess)
             }
+            else
+                console.log("Warning: Server received message at invalid topic: " + parsedTopic[0])
         })
         this.client = client;
     }
 }
 
+function validateTopic(baseTopic, topic){
 
-function checkTopicOccurance(topic){
-
-    let arrayOfBaseTopics = Object.keys(acceptableTopics);
-
-    let topicList = topic.split('/');
-
-    if(arrayOfBaseTopics.includes(topicList[0])){
-        if(acceptableTopics[topicList[0]].includes(topic))
-            return true
-        else
-            return false;
-     }
-     else{
-         return false;
-     }
-}
-
-function isTopicUnhandled(topic){
-
-    let isTopicValid = true;
-    let parsedTopic = topic.split('/');
-
-    if(checkTopicOccurance(topic)){
-        return false;
-    }
-    if(Object.keys(acceptableTopics).includes(parsedTopic[0])){
-       checkTopicOccurance
-    }
-    else if(topicList[0] === "sensors"){
-
-    }
+    return acceptableTopics[baseTopic].includes(topic)
 }
 
 module.exports = MQTTClient
