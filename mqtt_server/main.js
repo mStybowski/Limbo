@@ -1,9 +1,11 @@
 const mqtt = require("mqtt")
 
 const handleRequests = require("./handleRequests")
-const handleDataFlow = require("./handleDataFlow")
 const handleInterfaces = require("./handleInterfacesSettings")
 const handleCommands = require("./handleCommands")
+const handleSensors = require("./handleSensors")
+
+const acceptableTopics = require("./acceptableTopics")
 
 const fs = require('fs');
 const path = require("path")
@@ -72,6 +74,14 @@ class MQTTClient{
         return this.onlineInterface === _interface;
     }
 
+    isAnyInterfaceOnline(){
+        return this.onlineInterface;
+    }
+
+    isInterfaceConfigured(_interface){
+        return this.interfacesConfig[_interface];
+    }
+
     configurePipelineFor(interfaceName) {
 
         let interfaceConf = this.interfacesConfig[interfaceName];
@@ -138,7 +148,7 @@ class MQTTClient{
         if(this.isInterfaceOnline(_interface))
             this.pipeline.preprocessor.send(message);
         else
-            console.log("Info: Topic '" + _interface + "' is not used at the moment. First you must turn it on.");
+            console.log("Info: Interface '" + _interface + "' is not used at the moment. First you must turn it on.");
     }
 
     postPreprocessing(message){
@@ -271,7 +281,7 @@ class MQTTClient{
 
             console.log("\x1b[32m", "✔ Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP + " (2/2)\x1b[0m");
 
-            client.subscribe(['sensors/#', 'wills', 'request/#', "interfaces/#", "command/#"], function (err) {
+            client.subscribe(['sensors/log/+', 'sensors/data/+', 'wills', 'request/#', "interfaces/#", "command/#"], function (err) {
                 if (!err) {
                     client.publish('presence', 'Hello mqtt from server')
                 }
@@ -283,15 +293,21 @@ class MQTTClient{
         })
 
         client.on("message", (topic, mess)=>{
+
             let parsedTopic = topic.split('/');
+
+            // if(isTopicValid(parsedTopic)){
+            //     console.log("This topic is unhandled");
+            //     return;
+            // }
 
             // GUI REQUESTS
             if(parsedTopic[0] === "request")
                 handleRequests(this, parsedTopic, mess);
 
-            // SENSOR DATA
+            // SENSORS
             else if(parsedTopic[0] === "sensors"){
-                handleDataFlow(this, topic, mess);
+                handleSensors(this, topic, mess);
             }
 
             // INTERFACES
@@ -304,6 +320,40 @@ class MQTTClient{
             }
         })
         this.client = client;
+    }
+}
+
+
+function checkTopicOccurance(topic){
+
+    let arrayOfBaseTopics = Object.keys(acceptableTopics);
+
+    let topicList = topic.split('/');
+
+    if(arrayOfBaseTopics.includes(topicList[0])){
+        if(acceptableTopics[topicList[0]].includes(topic))
+            return true
+        else
+            return false;
+     }
+     else{
+         return false;
+     }
+}
+
+function isTopicUnhandled(topic){
+
+    let isTopicValid = true;
+    let parsedTopic = topic.split('/');
+
+    if(checkTopicOccurance(topic)){
+        return false;
+    }
+    if(Object.keys(acceptableTopics).includes(parsedTopic[0])){
+       checkTopicOccurance
+    }
+    else if(topicList[0] === "sensors"){
+
     }
 }
 
