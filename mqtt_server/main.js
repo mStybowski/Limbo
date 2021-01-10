@@ -287,6 +287,7 @@ class MQTTClient{
         })
         client.on("error", (err)=>{
             console.log("Error: Could not connect to MQTT Broker.\nPlease check your MQTT Broker settings.")
+            client.end();
         })
 
         client.on("message", (topic, mess)=>{
