@@ -6,7 +6,7 @@ const open = require("open")
 
 const client = new MQTTClient();
 
-const PORT = 3000;
+const PORT = 3005;
 
 app.use(express.json());       // to support JSON-encoded bodies
 app.use(express.urlencoded({     // to support URL-encoded bodies

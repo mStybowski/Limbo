@@ -102,8 +102,7 @@ class MQTTClient{
             preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {this.postPreprocessing(message)} , preprocessorOpt),
             fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
             classifier: PythonInterpreter.spawn("02_classify.py", (message)=>{this.postClassifier(message)}, classifierOpt),
-            cache: [],
-            n: interfaceConf.n
+            cache: []
         };
 
         return temporaryInterface
@@ -131,7 +130,6 @@ class MQTTClient{
 
     clearCache(){
         this.pipeline.cache = [];
-        this.pipeline.learnCache = [];
     }
 
     // MQTT LOGS PUBLISHER --------------------
@@ -158,54 +156,29 @@ class MQTTClient{
 
         if(this.state.mode === "idle"){
             console.log(message)
-            return;
         }
 
         else if(this.state.mode === "predict"){
             this.pipeline.classifier.send(message);
         }
 
-        try{
-            JSON.parse(message);
+        else if(this.state.mode === "learn" && this.recording){
+
+            let featuresArray = [];
+            let messageObject = {};
+
+            try{
+                messageObject = JSON.parse(message);
+                featuresArray = messageObject["features"];
+
+                featuresArray.forEach((el)=>{
+                    this.pipeline.cache.push(el);
+                });
+            }
+            catch{
+                console.log("Odebrano niepoprawne dane")
+            }
         }
-
-        catch{
-            console.log("Odebrano niepoprawne dane")
-            return;
-        }
-
-        
-
-        // let _dataPackets = JSON.parse(message);
-        // let dataPackets = _dataPackets["time series"]; // TODO: Tutaj nazwa właściwosci z obiektu otrzymanego z preprocesora
-
-        //     if(this.state.mode === "predict"){
-
-        //         dataPackets.forEach((el) => {
-        //             pipeline.cache.push(el);
-        //         });
-
-        //         if( this.pipeline.cache >= this.pipeline.n){
-        //             let toSend = JSON.stringify();
-                    
-        //             this.pipeline.classifier.send(toSend); // To jest przekazanie dalej
-        //             this.pipeline.cache = this.pipeline.cache.slice(this.interfacesConfig[this.onlineInterface].buffer_size, 2000);
-
-        //         }
-
-        //     }
-
-        //     else if(this.state.mode === "learn"){
-        //         if(this.recording){
-
-        //             dataPackets.forEach((el) => {
-        //                 this.learningBuffer.push(el);
-        //             });
-        //         }
-        //     }
-        //     else{
-        //         console.log("Server is in idle mode. Consider turning on different mode.")
-        //     }
 
     }
 
@@ -230,29 +203,28 @@ class MQTTClient{
     }
 
     startRecording(){
-        this.learningBuffer = [];
-        console.log(this.recording)
+        this.clearCache();
         this.recording = true;
-        console.log(this.recording)
-        console.log("Recording Started");
-        this.send("broadcast", "Recording Started");
+        console.log("Info: Recording Started");
+        this.serverLogs("Recording Started");
 
-        setTimeout(()=>{this.recording = false;console.log(this.recording); this.sendLearningBuffer()}, 3500)
+        setTimeout(()=>{this.recording = false; this.sendLearningBuffer()}, 3500)
     }
 
     sendLearningBuffer(){
 
         let objToSend = {
-            command: "gather",
-            data: this.learningBuffer,
-            gesture: this.currentGesture
+            features:this.pipeline.cache,
+            label: this.currentGesture,
+            command: "gather"
         }
-        console.log("Recording finished");
+        console.log("Info: Recording finished");
 
         this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
 
-        this.send("broadcast", "Recording Finished");
+        this.serverLogs("Recording finished");
 
+        this.clearCache();
     }
 
     // CONNECTION ---------------------
