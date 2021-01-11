@@ -101,8 +101,9 @@ class MQTTClient{
         let temporaryInterface = {
             preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {this.postPreprocessing(message)} , preprocessorOpt),
             fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
-            classifier: PythonInterpreter.spawn("02_classify.py", this.postClassifier, classifierOpt),
-            cache: []
+            classifier: PythonInterpreter.spawn("02_classify.py", (message)=>{this.postClassifier(message)}, classifierOpt),
+            cache: [],
+            n: interfaceConf.n
         };
 
         return temporaryInterface
@@ -156,53 +157,60 @@ class MQTTClient{
     postPreprocessing(message){
 
         if(this.state.mode === "idle"){
-            console.log("IDLE: " + message)
+            console.log(message)
             return;
+        }
+
+        else if(this.state.mode === "predict"){
+            this.pipeline.classifier.send(toSend);
         }
 
         try{
             JSON.parse(message);
         }
+
         catch{
             console.log("Odebrano niepoprawne dane")
             return;
         }
 
-        let _dataPackets = JSON.parse(message);
-        let dataPackets = _dataPackets["time series"]; // TODO: Tutaj nazwa właściwosci z obiektu otrzymanego z preprocesora
+        
 
-            if(this.state.mode === "predict"){
+        // let _dataPackets = JSON.parse(message);
+        // let dataPackets = _dataPackets["time series"]; // TODO: Tutaj nazwa właściwosci z obiektu otrzymanego z preprocesora
 
-                dataPackets.forEach((el) => {
-                    pipeline.cache.push(el);
-                });
+        //     if(this.state.mode === "predict"){
 
-                if( pipeline.cache >= this.pipeline.buffer_size){
-                    let toSend = JSON.stringify(_obj);
+        //         dataPackets.forEach((el) => {
+        //             pipeline.cache.push(el);
+        //         });
+
+        //         if( this.pipeline.cache >= this.pipeline.n){
+        //             let toSend = JSON.stringify();
                     
-                    pipeline.classifier.send(toSend); // To jest przekazanie dalej
-                    pipeline.cache = pipeline.cache.slice(this.interfacesConfig[this.onlineInterface].buffer_size, 200);
+        //             this.pipeline.classifier.send(toSend); // To jest przekazanie dalej
+        //             this.pipeline.cache = this.pipeline.cache.slice(this.interfacesConfig[this.onlineInterface].buffer_size, 2000);
 
-                }
+        //         }
 
-            }
+        //     }
 
-            else if(this.state.mode === "learn"){
-                if(this.recording){
+        //     else if(this.state.mode === "learn"){
+        //         if(this.recording){
 
-                    dataPackets.forEach((el) => {
-                        this.learningBuffer.push(el);
-                    });
-                }
-            }
-            else{
-                console.log("Server is in idle mode. Consider turning on different mode.")
-            }
+        //             dataPackets.forEach((el) => {
+        //                 this.learningBuffer.push(el);
+        //             });
+        //         }
+        //     }
+        //     else{
+        //         console.log("Server is in idle mode. Consider turning on different mode.")
+        //     }
 
     }
 
     postClassifier(message){
-        console.log(message);
+        console.log("From classifier: " + message);
     }
 
     postFineTune(message){
