@@ -122,7 +122,8 @@ class MQTTClient{
             classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
                 this.postClassifier(message)
             }, classifierOpt),
-            cache: []
+            mem1: 0,
+            mem2: 0
         }
 
     }
@@ -147,7 +148,8 @@ class MQTTClient{
     }
 
     clearCache(){
-        this.pipeline.cache = [];
+        this.pipeline.mem1 = 0
+        this.pipeline.mem2 = 0
     }
 
     // MQTT LOGS PUBLISHER --------------------
@@ -159,11 +161,13 @@ class MQTTClient{
             verbose
         }
         this.client.publish("serverLogs", JSON.stringify(messageObject));
+        console.log(type + ": " + _payload);
     }
 
     // Data handlers --------------------------
 
     handleRawData(_interface, message){
+        this.pipeline.mem2 +=1;
         if(this.isInterfaceOnline(_interface))
             this.pipeline.preprocessor.send(message);
         else
@@ -189,6 +193,7 @@ class MQTTClient{
                 messageObject = JSON.parse(message);
                 messageObject["label"] = this.currentGesture;
                 messageObject["command"] = "gather";
+                this.pipeline.mem1 +=1;
                 this.pipeline.fine_tuner.send(JSON.stringify(messageObject));
                 // featuresArray = messageObject["features"];
 
@@ -228,23 +233,18 @@ class MQTTClient{
         this.recording = true;
         console.log("Info: Recording Started");
         this.serverLogs("Recording Started");
+        this.send("sensors/control/" + this.getOnlineInterface(), "start");
 
-        setTimeout(()=>{this.recording = false}, 3500)
+        setTimeout(()=>{this.finishRecording()}, 3500)
     }
 
-    sendLearningBuffer(){
-
-        let objToSend = {
-            features:this.pipeline.cache,
-            label: this.currentGesture,
-            command: "gather"
-        }
-        console.log("Info: Recording finished");
-
-        this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
-
+    finishRecording(){
+        this.recording = false;
         this.serverLogs("Recording finished");
+        this.send("sensors/control/" + this.getOnlineInterface(), "stop");
 
+        this.serverLogs("Received " + this.pipeline.mem2 + " packets of data.")
+        this.serverLogs("Processed " + this.pipeline.mem1 + " packets of data.")
         this.clearCache();
     }
 

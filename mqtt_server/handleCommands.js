@@ -18,7 +18,13 @@ function handleCommands(object, topicList, message){
     }
     
     else if(topicList[0] === "startRecording"){
-        object.startRecording();
+        if(object.isAnyInterfaceOnline())
+            if(object.state.mode === "learn")
+                object.startRecording();
+            else
+                object.serverLogs("To start recording you first must set mode to learn.", "warning", true);
+        else
+            object.serverLogs("No interface is online. First you must turn it on using interfaces/use topic.", "warning", true);
     }
 
     else if(topicList[0] === "controlSensor"){
