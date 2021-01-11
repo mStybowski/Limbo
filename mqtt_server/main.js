@@ -45,8 +45,13 @@ class MQTTClient{
 
     setMode(mode){
         this.clearCache();
+
+        if(this.getServerMode() === "learn" && mode !== "learn"){
+            this.finishLearnMode();
+        }
         this.state.mode = mode;
-        console.log("Changed mode to: " + this.state.mode);
+        console.log("Info: Changed mode to: " + mode);
+        this.serverLogs("Changed mode to " + mode, "info", true);
     }
 
     setOnlineInterface(newInterface){
@@ -66,6 +71,17 @@ class MQTTClient{
 
     send(topic, message){
         this.client.publish(topic, message);
+    }
+
+    finishLearnMode(){
+
+        let objToSend = {
+            features: [],
+            label: "idle",
+            command: "finish"
+        }
+
+        this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
     }
 
     runOnce(script){
