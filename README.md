@@ -21,7 +21,7 @@ npm install
 <h3>Run the server</h3>
 
 ```
-node app.js
+node limbo.js
 ```
 
 <h3>Enjoy</h3>
