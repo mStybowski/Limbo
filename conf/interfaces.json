@@ -1,1 +1,1 @@
-{"emg":{"time_window":30,"stride":50,"buffer_size":200,"n":200}}
+{"emg":{"time_window":30,"stride":50,"buffer_size":200}}
