@@ -114,14 +114,16 @@ class MQTTClient{
         let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.
         let classifierOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", "blah.py"]} //TODO wpisz sciezke do modelu. Ona jest stała.
 
-        let temporaryInterface = {
-            preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {this.postPreprocessing(message)} , preprocessorOpt),
+        return {
+            preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {
+                this.postPreprocessing(message)
+            }, preprocessorOpt),
             fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
-            classifier: PythonInterpreter.spawn("02_classify.py", (message)=>{this.postClassifier(message)}, classifierOpt),
+            classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
+                this.postClassifier(message)
+            }, classifierOpt),
             cache: []
-        };
-
-        return temporaryInterface
+        }
 
     }
 

@@ -70,18 +70,7 @@ function handleInterfaces(object, topic, message){
     }
 
     else if(topicList[0] === "end"){
-        interfaces.forEach((el) => {
-            if(object.onlineInterfaces[el]){
-                delete object.onlineInterfaces[el];
-                console.log("Success: Terminated '" + el + "' interface.");
-            }
-            else{
-                let message = "There is no '" + el + "' interface currently running. Skipped this one.";
-                console.log(message);
-                object.serverLogs(message, "Warning", true);
-            }
-            
-        })
+
     }
     else{
         console.log("Warning: I dont know this topic.")
