@@ -182,16 +182,19 @@ class MQTTClient{
 
         else if(this.state.mode === "learn" && this.recording){
 
-            let featuresArray = [];
+            // let featuresArray = [];
             let messageObject = {};
 
             try{
                 messageObject = JSON.parse(message);
-                featuresArray = messageObject["features"];
+                messageObject["label"] = this.currentGesture;
+                messageObject["command"] = "gather";
+                this.pipeline.fine_tuner.send(JSON.stringify(messageObject));
+                // featuresArray = messageObject["features"];
 
-                featuresArray.forEach((el)=>{
-                    this.pipeline.cache.push(el);
-                });
+                // featuresArray.forEach((el)=>{
+                //     this.pipeline.cache.push(el);
+                // });
             }
             catch{
                 console.log("Odebrano niepoprawne dane")
@@ -226,7 +229,7 @@ class MQTTClient{
         console.log("Info: Recording Started");
         this.serverLogs("Recording Started");
 
-        setTimeout(()=>{this.recording = false; this.sendLearningBuffer()}, 3500)
+        setTimeout(()=>{this.recording = false}, 3500)
     }
 
     sendLearningBuffer(){
