@@ -162,7 +162,7 @@ class MQTTClient{
         }
 
         else if(this.state.mode === "predict"){
-            this.pipeline.classifier.send(toSend);
+            this.pipeline.classifier.send(message);
         }
 
         try{
