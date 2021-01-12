@@ -7,7 +7,7 @@ function handleInterfaces(object, topic, message){
     let parsedMessage = checkJSONCorrectness(message, true); // TODO: rozdziel osobno check correctness osbono parse. W funckji parse odpal check correctness
 
     if(!parsedMessage){
-        console.log("Warning: Server received invalid message at topic: " + topic);
+        object.serverLogs("Server received invalid message at topic: " + topic, "warning", true);
         return
     }
 
@@ -19,11 +19,11 @@ function handleInterfaces(object, topic, message){
         interfaces.forEach((el, index) => {
             // use method instead of accesing data directly
             if(object.interfacesConfig[el]){
-                console.log("Warning: Interface '" + el + "' already exists. Remove it or choose diffrent name for the new one.");
+                object.serverLogs("Interface '" + el + "' already exists. Remove it or choose different name for the new one.", "warning");
             }
             else{
                 object.interfacesConfig[el]=parsedMessage["attributes"][index];
-                console.log("Success: Newly created interface '" + el + "' had been saved.");
+                object.serverLogs("Newly created interface configuration '" + el + "' had been saved.", "success", true);
             }
             
         })
@@ -33,11 +33,11 @@ function handleInterfaces(object, topic, message){
     else if(topicList[0] === "edit"){
         interfaces.forEach((el, index) => {
             if(!object.interfacesConfig[el]){
-                console.log("Warning: Interface '" + el + "' doesn't exist.");
+                object.serverLogs("Interface configuration '" + el + "' doesn't exist.", "warning");
             }
             else{
                 object.interfacesConfig[el]=parsedMessage["attributes"][index];
-                console.log("Success: Freshly updated interface '" + el + "' had been saved.");
+                object.serverLogs("Freshly updated interface configuration '" + el + "' had been saved.", "success");
             }
             
         })
@@ -49,10 +49,10 @@ function handleInterfaces(object, topic, message){
             if(object.interfacesConfig[el]){
                 //TODO use method instead
                 delete object.interfacesConfig[el];
-                console.log("Success: '" + el + "' Interface has been deleted.");
+                object.serverLogs(el + "' interface configuration has been deleted.", "success");
             }
             else{
-                console.log("Warning: Interface '" + el + "' doesn't exist.");
+                object.serverLogs("Interface configuration '" + el + "' doesn't exist.", "warning");
             }
             
         })
@@ -65,7 +65,7 @@ function handleInterfaces(object, topic, message){
                 object.createPipeline(el);
             
             else
-                console.log("Warning: " + el + " pipeline is already online"); 
+                object.serverLogs("Interface " + el + " is already in use.", "warning");
         })
     }
 
@@ -73,7 +73,7 @@ function handleInterfaces(object, topic, message){
 
     }
     else{
-        console.log("Warning: I dont know this topic.")
+        object.serverLogs("I dont know this topic.", "warning")
     }
 }
 

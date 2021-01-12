@@ -25,7 +25,7 @@ function handleRequests(object, topicList, message){
 
         else{
                 console.log(`Warning: I dont know this (${topicList[0]}) topic.`)
-                object.serverLogs(`I dont know this (${topicList[0]}) topic.`);
+                object.serverLogs(`I dont know this (${topicList[0]}) topic.`, "warning");
         }
 }
 

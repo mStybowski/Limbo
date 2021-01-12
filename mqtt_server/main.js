@@ -50,7 +50,6 @@ class MQTTClient{
             this.finishLearnMode();
         }
         this.state.mode = mode;
-        console.log("Info: Changed mode to: " + mode);
         this.serverLogs("Changed mode to " + mode, "info", true);
     }
 
@@ -134,11 +133,11 @@ class MQTTClient{
             let newPipeline = this.configurePipelineFor(_interface);
             this.savePipeline(_interface, newPipeline);
 
-            console.log("Success: Created " + this.onlineInterface + " interface.");
+            this.serverLogs("Created " + this.onlineInterface + " interface.", "success", true);
         }
 
         else
-            console.log("Warning: There is no " + _interface +" interface configuration available. Skipped this one.")
+            this.serverLogs("There is no " + _interface +" interface configuration available. Skipped this one.", "warning", true)
     
     }
 
@@ -160,8 +159,19 @@ class MQTTClient{
             type: type,
             verbose
         }
+
+        let typeUppercase = type.toUpperCase();
         this.client.publish("serverLogs", JSON.stringify(messageObject));
-        console.log(type + ": " + _payload);
+
+        let colors = {
+            NEUTRAL: "\x1b[37m%s\x1b[0m",
+            SUCCESS: "\x1b[32m%s\x1b[0m",
+            INFO: "\x1b[34m%s\x1b[0m",
+            WARNING: "\x1b[33m%s\x1b[0m",
+            ERROR: "\x1b[31m%s\x1b[0m"
+        }
+
+        console.log(colors[typeUppercase],typeUppercase + ": " + _payload);
     }
 
     // Data handlers --------------------------
@@ -171,7 +181,7 @@ class MQTTClient{
         if(this.isInterfaceOnline(_interface))
             this.pipeline.preprocessor.send(message);
         else
-            console.log("Info: Interface '" + _interface + "' is not used at the moment. First you must turn it on.");
+            this.serverLogs("Interface '" + _interface + "' is not used at the moment. First you must turn it on.", "warning", true);
     }
 
     postPreprocessing(message){
@@ -202,14 +212,14 @@ class MQTTClient{
                 // });
             }
             catch{
-                console.log("Odebrano niepoprawne dane")
+                this.serverLogs("Odebrano niepoprawne dane")
             }
         }
 
     }
 
     postClassifier(message){
-        console.log("From classifier: " + message);
+        console.log("From classifier: " + message + "\n\n------------------\n");
     }
 
     postFineTune(message){
@@ -231,7 +241,6 @@ class MQTTClient{
     startRecording(){
         this.clearCache();
         this.recording = true;
-        console.log("Info: Recording Started");
         this.serverLogs("Recording Started");
         this.send("sensors/control/" + this.getOnlineInterface(), "start");
 
@@ -286,12 +295,12 @@ class MQTTClient{
 
             client.subscribe(subscribedTopics, function (err) {
                 if (!err) {
-                    client.publish('presence', 'Hello mqtt from server')
+                    client.publish('serverLogs', 'Server succesfully connected!')
                 }
             })
         })
         client.on("error", (err)=>{
-            console.log("Error: Could not connect to MQTT Broker.\nPlease check your MQTT Broker settings.")
+            this.serverLogs("Could not connect to MQTT Broker. Please check your MQTT Broker settings.", "error", true)
             client.end();
         })
 
@@ -306,11 +315,11 @@ class MQTTClient{
             }
 
             if(!validateTopic(parsedTopic[0], topic)){
-                console.log("\x1b[33m%s\x1b[0m", "\n⚠️ Warning: Invalid topic: " + topic + "\n")
+                console.log("\x1b[33m%s\x1b[0m", "\nWarning: Invalid topic: " + topic + "\n")
                 console.log("Available options are: ")
 
                 acceptableTopics[parsedTopic[0]].forEach((el)=>{
-                    console.log("\x1b[34m%s\x1b[0m", "🔹" + el);
+                    console.log("\x1b[34m%s\x1b[0m", "- " + el);
                 })
 
                 return;
@@ -332,7 +341,7 @@ class MQTTClient{
                 handleCommands(this, parsedTopic, mess)
             }
             else
-                console.log("Warning: Server received message at invalid topic: " + parsedTopic[0])
+                this.serverLogs("Server received message at invalid topic: " + parsedTopic[0], "warning")
         })
         this.client = client;
     }

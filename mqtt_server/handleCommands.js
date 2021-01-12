@@ -31,16 +31,16 @@ function handleCommands(object, topicList, message){
         if(object.isAnyInterfaceOnline()){
             let _topic = "sensors/control/" + object.getOnlineInterface().toString();
             object.send(_topic, message.toString())
-            console.log("Command " + message.toString() + " sent.")
+            object.serverLogs("Command " + message.toString() + " sent.")
         }
         else{
-            console.log("Error: No interface is currently in use")
+            object.serverLogs("No interface is currently in use", "warning", true)
         }
      
     }
 
     else{
-        console.log("Warning: I dont know this topic.")
+        object.serverLogs("I dont know this topic.", "warning")
     }
 }
 

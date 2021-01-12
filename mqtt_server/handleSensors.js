@@ -7,17 +7,17 @@ function handleSensors(object, topic, mess){
     topicList.shift();
 
     if(!parsedMessage){
-        console.log("Warning: Server received invalid message at topic: " + topic);
+        object.serverLogs("Server received invalid message at topic: " + topic, "warning", true);
         return
     }
 
     if(!object.isInterfaceConfigured(topicList[1])){
-        console.log("Warning: Received message from unconfigured interface: " + topicList[1]);
+        object.serverLogs("Received message from unconfigured interface: " + topicList[1], "warning", true);
         return
     }
 
     if(!object.isInterfaceOnline(topicList[1])){
-        console.log("Info: Interface '" + topicList[1] + "' is not used at the moment. First you must turn it on.");
+        object.serverLogs("Interface '" + topicList[1] + "' is not used at the moment. First you must turn it on.", "info", true);
         return
     }
 
@@ -29,7 +29,7 @@ function handleSensors(object, topic, mess){
 
     else{
         //TODO Wyślij do gui info że nie rozpoznano danych
-        console.log("Warning: Received data at unconfigured topic: " + topicList[0]);
+        object.serverLogs("Received data at unconfigured topic: " + topicList[0], "warning", true);
     }
 }
 
