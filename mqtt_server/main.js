@@ -143,11 +143,11 @@ class MQTTClient{
             let newPipeline = this.configurePipelineFor(_interface);
             this.savePipeline(_interface, newPipeline);
 
-            this.serverLogs("Created " + this.onlineInterface + " interface.", "success", true);
+            this.serverLogs("Freshly configured pipeline for " + this.onlineInterface + " interface has been started. Good luck!", "success", true);
         }
 
         else
-            this.serverLogs("There is no " + _interface +" interface configuration available. Skipped this one.", "warning", true)
+            this.serverLogs("There is no " + _interface +" interface configuration available. Check configuration file: interfaces.json.", "warning", true)
     
     }
 
