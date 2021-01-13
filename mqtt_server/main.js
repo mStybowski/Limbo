@@ -72,6 +72,16 @@ class MQTTClient{
         this.client.publish(topic, message);
     }
 
+    sendToSensor(sensorName, message, type="command"){
+        let topic = "sensors/control/" + sensorName;
+
+        let messageObject = {
+            type:message
+        }
+
+        this.send(topic, JSON.stringify(messageObject));
+    }
+
     finishLearnMode(){
 
         let objToSend = {
@@ -242,7 +252,8 @@ class MQTTClient{
         this.clearCache();
         this.recording = true;
         this.serverLogs("Recording Started");
-        this.send("sensors/control/" + this.getOnlineInterface(), "start");
+        this.sendToSensor(this.onlineInterface, "start");
+
 
         setTimeout(()=>{this.finishRecording()}, 3500)
     }
@@ -250,7 +261,7 @@ class MQTTClient{
     finishRecording(){
         this.recording = false;
         this.serverLogs("Recording finished");
-        this.send("sensors/control/" + this.getOnlineInterface(), "stop");
+        this.sendToSensor(this.onlineInterface, "stop");
 
         this.serverLogs("Received " + this.pipeline.mem2 + " packets of data.")
         this.serverLogs("Processed " + this.pipeline.mem1 + " packets of data.")
