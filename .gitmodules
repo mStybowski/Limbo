@@ -1,0 +1,3 @@
+[submodule "python_scripts"]
+	path = python_scripts
+	url = https://bitbucket.org/ciestudents/sensors_scripts_limbo
