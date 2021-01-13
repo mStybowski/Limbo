@@ -20,12 +20,12 @@ class MQTTClient{
     state={
         connected: false,
         mqttBrokerIP: "",
-        mode: "idle"
+        mode: "idle",
+        onlineInterface: null,
+        recording: false
     }
-    
-    onlineInterface;
+
     pipeline = {};
-    recording = false;
 
     // GETTERS -------------------------------
 
@@ -38,7 +38,7 @@ class MQTTClient{
     }
 
     getOnlineInterface(){
-        return this.onlineInterface;
+        return this.state.onlineInterface;
     }
 
     // SETTERS ------------------------------
@@ -54,7 +54,7 @@ class MQTTClient{
     }
 
     setOnlineInterface(newInterface){
-        this.onlineInterface = newInterface;
+        this.state.onlineInterface = newInterface;
     }
 
     setGesture(gesture){
@@ -98,11 +98,11 @@ class MQTTClient{
     }
 
     isInterfaceOnline(_interface){
-        return this.onlineInterface === _interface;
+        return this.state.onlineInterface === _interface;
     }
 
     isAnyInterfaceOnline(){
-        return this.onlineInterface;
+        return this.state.onlineInterface;
     }
 
     isInterfaceConfigured(_interface){
@@ -142,7 +142,7 @@ class MQTTClient{
         this.pipeline.classifier.end();
         this.pipeline.fine_tuner.end();
         this.clearCache()
-        this.onlineInterface = null;
+        this.state.onlineInterface = null;
     }
 
     createPipeline(_interface){
@@ -151,7 +151,7 @@ class MQTTClient{
             let newPipeline = this.configurePipelineFor(_interface);
             this.savePipeline(_interface, newPipeline);
 
-            this.serverLogs("Freshly configured pipeline for " + this.onlineInterface + " interface has been started. Good luck!", "success", true);
+            this.serverLogs("Freshly configured pipeline for " + this.state.onlineInterface + " interface has been started. Good luck!", "success", true);
         }
 
         else
@@ -160,7 +160,7 @@ class MQTTClient{
     }
 
     savePipeline(_interface, _pipeline){
-        this.onlineInterface = _interface;
+        this.state.onlineInterface = _interface;
         this.pipeline = _pipeline;
     }
 
@@ -250,7 +250,7 @@ class MQTTClient{
     }
 
     handleRawData(_interface, message){
-        if(this.recording)
+        if(this.state.recording)
             this.pipeline.mem2 +=1;
 
         if(this.isInterfaceOnline(_interface))
@@ -282,7 +282,7 @@ class MQTTClient{
             this.pipeline.classifier.send(message);
         }
 
-        else if(this.state.mode === "learn" && this.recording){
+        else if(this.state.mode === "learn" && this.state.recording){
 
             // let featuresArray = [];
             let messageObject = {};
@@ -362,18 +362,18 @@ class MQTTClient{
 
     startRecording(){
         this.clearCache();
-        this.recording = true;
+        this.state.recording = true;
         this.serverLogs("Recording Started");
-        this.sendToSensor(this.onlineInterface, "start");
+        this.sendToSensor(this.state.onlineInterface, "start");
 
 
         setTimeout(()=>{this.finishRecording()}, 3500)
     }
 
     finishRecording(){
-        this.recording = false;
+        this.state.recording = false;
         this.serverLogs("Recording finished");
-        this.sendToSensor(this.onlineInterface, "stop");
+        this.sendToSensor(this.state.onlineInterface, "stop");
 
         this.serverLogs("Received " + this.pipeline.mem2 + " packets of data.")
         this.serverLogs("Processed " + this.pipeline.mem1 + " packets of data.")
