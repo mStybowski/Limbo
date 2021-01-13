@@ -186,8 +186,14 @@ class MQTTClient{
 
     // Data handlers --------------------------
 
+    handleScriptLog(log){
+        this.serverLogs(`${log.source}: \n` + log.payload, log.type)
+    }
+
     handleRawData(_interface, message){
-        this.pipeline.mem2 +=1;
+        if(this.recording)
+            this.pipeline.mem2 +=1;
+
         if(this.isInterfaceOnline(_interface))
             this.pipeline.preprocessor.send(message);
         else
@@ -196,7 +202,20 @@ class MQTTClient{
 
     postPreprocessing(message){
 
-        if(this.state.mode === "idle"){
+        let messageObject = {}
+        try{
+            messageObject = JSON.parse(message)
+        }
+        catch{
+            return;
+        }
+
+        if(messageObject["log"]){
+            this.handleScriptLog(messageObject["log"]);
+            return;
+        }
+
+        if(this.state.mode === "idle" && !messageObject["log"]){
             console.log(message)
         }
 
@@ -229,11 +248,33 @@ class MQTTClient{
     }
 
     postClassifier(message){
-        console.log("From classifier: " + message + "\n\n------------------\n");
+        let messageObject = {}
+        try{
+            messageObject = JSON.parse(message)
+        }
+        catch{
+            return;
+        }
+
+        if(messageObject["log"]){
+            let log = messageObject["log"];
+            this.handleScriptLog(log);
+        }
     }
 
     postFineTune(message){
-        console.log(message);
+
+        if(messageObject["data"]){
+            let data = messageObject["data"];
+            let dataKeys = data.keys;
+
+            this.pipeline["fine_tune_results"] = data;
+
+            console.log("Fine tuning results:")
+            dataKeys.forEach((el)=>{
+                console.log(el + ": " + data[el])
+            })
+        }
     }
 
     // INTERFACES --------------------------
