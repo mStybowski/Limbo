@@ -10,6 +10,14 @@ const acceptableTopics = require("./acceptableTopics")
 const fs = require('fs');
 const path = require("path")
 
+
+let defaultOptions = {
+    mode: 'text',
+    scriptPath: './python_scripts/',
+    pythonOptions: ['-u'], // get print results in real-time
+};
+
+
 let subscribedTopics = ['sensors/log/+', 'sensors/data/+', 'wills', 'request/#', "interfaces/#", "command/#"];
 
 const PythonInterpreter = require("../python_shell/main")
@@ -45,9 +53,13 @@ class MQTTClient{
 
     setMode(mode){
         this.clearCache();
+        let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", this.getOnlineInterface(), "-m", ""]}
 
         if(this.getServerMode() === "learn" && mode !== "learn"){
             this.finishLearnMode();
+        }
+        else if(mode === "learn" && this.isAnyScriptDown().includes("fine_tuner")){
+            this.pipeline.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt);
         }
         this.state.mode = mode;
         this.serverLogs("Changed mode to " + mode, "info", true);
@@ -67,6 +79,19 @@ class MQTTClient{
     }
 
     // UTILITIES ------------------------------
+
+    isAnyScriptDown(){
+        let downScripts = [];
+        if(this.state.onlineInterface){
+            if(this.pipeline.preprocessor.terminated)
+                downScripts.push("preprocessor")
+            if(this.pipeline.fine_tuner.terminated)
+                downScripts.push("fine_tuner")
+            if(this.pipeline.classifier.terminated)
+                downScripts.push("classifier")
+        }
+        return downScripts
+    }
 
     send(topic, message){
         this.client.publish(topic, message);
@@ -113,11 +138,7 @@ class MQTTClient{
 
         let interfaceConf = this.interfacesConfig[interfaceName];
 
-        let defaultOptions = {
-            mode: 'text',
-            scriptPath: './python_scripts/',
-            pythonOptions: ['-u'], // get print results in real-time
-        };
+
 
         let preprocessorOpt = {...defaultOptions, args: ["-t", interfaceName, "-w", interfaceConf.time_window, "-s", interfaceConf.stride]}
         let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", interfaceName, "-m", ""]} //TODO wpisz sciezke do modelu. Ona jest stała.

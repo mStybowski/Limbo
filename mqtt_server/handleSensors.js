@@ -21,9 +21,13 @@ function handleSensors(object, topic, mess){
         return
     }
 
-    if(topicList[0] === "data")
+    if(topicList[0] === "data"){
+        if(object.isAnyScriptDown().length > 0){
+            object.serverLogs("The following scripts are not working: " + object.isAnyScriptDown())
+        }
         object.handleRawData(topicList[1], JSON.stringify(parsedMessage));
-    
+    }
+
     else if(topicList[0] === "log"){
         if(parsedMessage["type"] && parsedMessage["payload"])
             object.sensorLogs(topicList[1], parsedMessage.payload, parsedMessage.type);
