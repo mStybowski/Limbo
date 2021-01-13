@@ -24,8 +24,12 @@ function handleSensors(object, topic, mess){
     if(topicList[0] === "data")
         object.handleRawData(topicList[1], JSON.stringify(parsedMessage));
     
-    else if(topicList[0] === "log")
-        console.log(topicList[1] + " sends: " + mess.toString())// ROBOCZO
+    else if(topicList[0] === "log"){
+        if(parsedMessage["type"] && parsedMessage["payload"])
+            object.sensorLogs(topicList[1], parsedMessage.payload, parsedMessage.type);
+        else
+            object.serverLogs("Log message from " + topicList[1] + " is invalid.", "warning");
+    }
 
     else{
         //TODO Wyślij do gui info że nie rozpoznano danych

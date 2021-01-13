@@ -161,16 +161,23 @@ class MQTTClient{
         this.pipeline.mem2 = 0
     }
 
-    // MQTT LOGS PUBLISHER --------------------
+    // MQTT LOGS PUBLISHERS --------------------
 
     serverLogs(_payload, type="info", verbose=false){
+
+        let upperCaseType = type.toUpperCase();
+
+        if(!this.isLogTypeCorrect(upperCaseType))
+        {
+            this.serverLogs("Received message from server of unknown type: :'" + type + "'")
+        }
+
         let messageObject = {
             payload: _payload,
-            type: type,
+            type: upperCaseType,
             verbose
         }
 
-        let typeUppercase = type.toUpperCase();
         this.client.publish("serverLogs", JSON.stringify(messageObject));
 
         let colors = {
@@ -181,13 +188,57 @@ class MQTTClient{
             ERROR: "\x1b[31m%s\x1b[0m"
         }
 
-        console.log(colors[typeUppercase],typeUppercase + ": " + _payload);
+        console.log(colors[upperCaseType], upperCaseType + ": " + _payload);
+    }
+
+    scriptLogs(source="unspecified", payload="none", type="info"){
+
+        let upperCaseType = type.toUpperCase();
+
+        if(!this.isLogTypeCorrect(upperCaseType)){
+            this.serverLogs("Received message from " + source + " of unknown type: :'" + type + "'")
+            return;
+        }
+
+        let messageObject = {
+            payload,
+            type: upperCaseType,
+            source
+        }
+
+        this.send("scriptLogs", JSON.stringify(messageObject));
+    }
+
+    sensorLogs(sensor="unspecified", payload="none", type="info"){
+
+        let upperCaseType = type.toUpperCase();
+
+        if(!this.isLogTypeCorrect(upperCaseType)){
+            this.serverLogs("Received message from " + sensor + " of unknown type: :'" + type + "'")
+            return;
+        }
+
+        let messageObject = {
+            payload,
+            type: upperCaseType,
+            sensor
+        }
+
+        this.send("sensorLogs", JSON.stringify(messageObject));
+    }
+
+    isLogTypeCorrect(type){
+        return (type === "WARNING" || type === "INFO" || type === "SUCCESS" || type === "ERROR" || type === "NEUTRAL")
     }
 
     // Data handlers --------------------------
 
     handleScriptLog(log){
-        this.serverLogs(`${log.source}: \n` + log.payload, log.type)
+        if(log["type"] && log["payload"] && log["source"])
+            this.scriptLogs(log.source, log.payload, log.type)
+        else
+            this.serverLogs("Received invalid log from script", "warning");
+
     }
 
     handleRawData(_interface, message){
@@ -263,6 +314,18 @@ class MQTTClient{
     }
 
     postFineTune(message){
+        let messageObject = {}
+        try{
+            messageObject = JSON.parse(message)
+        }
+        catch{
+            return;
+        }
+
+        if(messageObject["log"]){
+            let log = messageObject["log"];
+            this.handleScriptLog(log);
+        }
 
         if(messageObject["data"]){
             let data = messageObject["data"];
