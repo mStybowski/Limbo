@@ -17,21 +17,10 @@ class MQTTClient{
 
     client;
 
-    scriptsStatus={
-        preprocessor: "not running",
-        classifier: "not running",
-        fine_tuner: "not running"
-    }
-
     state={
         connected: false,
         mqttBrokerIP: "",
-        mode: "idle",
-        scriptsStatus:{
-            preprocessor: "not running",
-            classifier: "not running",
-            fine_tuner: "not running"
-        }
+        mode: "idle"
     }
     
     onlineInterface;

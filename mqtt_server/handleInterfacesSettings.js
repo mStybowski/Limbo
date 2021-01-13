@@ -71,7 +71,7 @@ function handleInterfaces(object, topic, message){
 
     else if(topicList[0] === "end"){
         let oldInterface = object.getOnlineInterface();
-
+        object.destroyPipeline();
         object.serverLogs("Interface " + oldInterface + " has been finished.", "success", true)
     }
     else{
