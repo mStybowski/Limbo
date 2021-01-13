@@ -17,10 +17,21 @@ class MQTTClient{
 
     client;
 
+    scriptsStatus={
+        preprocessor: "not running",
+        classifier: "not running",
+        fine_tuner: "not running"
+    }
+
     state={
         connected: false,
         mqttBrokerIP: "",
-        mode: "idle"
+        mode: "idle",
+        scriptsStatus:{
+            preprocessor: "not running",
+            classifier: "not running",
+            fine_tuner: "not running"
+        }
     }
     
     onlineInterface;
@@ -135,6 +146,14 @@ class MQTTClient{
             mem2: 0
         }
 
+    }
+
+    destroyPipeline(){
+        this.pipeline.preprocessor.end();
+        this.pipeline.classifier.end();
+        this.pipeline.fine_tuner.end();
+        this.clearCache()
+        this.onlineInterface = null;
     }
 
     createPipeline(_interface){
@@ -266,8 +285,8 @@ class MQTTClient{
             return;
         }
 
-        if(this.state.mode === "idle" && !messageObject["log"]){
-            console.log(message)
+        if(this.state.mode === "idle"){
+            console.log(messageObject)
         }
 
         else if(this.state.mode === "predict"){

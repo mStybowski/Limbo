@@ -71,12 +71,8 @@ function handleInterfaces(object, topic, message){
 
     else if(topicList[0] === "end"){
         let oldInterface = object.getOnlineInterface();
-        object.pipeline.preprocessor.end();
-        object.pipeline.classifier.end();
-        object.pipeline.fine_tuner.end();
-        object.clearCache()
-        object.onlineInterface = null;
-        object.serverLogs("Interface " + oldInterface + " has been finished.")
+
+        object.serverLogs("Interface " + oldInterface + " has been finished.", "success", true)
     }
     else{
         object.serverLogs("I dont know this topic.", "warning")
