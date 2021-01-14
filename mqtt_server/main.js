@@ -70,7 +70,7 @@ class MQTTClient{
     }
 
     setGesture(gesture){
-        this.currentGesture = gesture;
+        this.state.currentGesture = gesture;
     }
 
     setServerState(newState){
@@ -310,7 +310,7 @@ class MQTTClient{
 
             try{
                 messageObject = JSON.parse(message);
-                messageObject["label"] = this.currentGesture;
+                messageObject["label"] = this.state.currentGesture;
                 messageObject["command"] = "gather";
                 this.pipeline.mem1 +=1;
                 this.pipeline.fine_tuner.send(JSON.stringify(messageObject));

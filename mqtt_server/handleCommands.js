@@ -15,6 +15,7 @@ function handleCommands(object, topicList, message){
 
     else if(topicList[0] === "gesture"){
         object.setGesture(parsedMessage);
+        object.serverLogs("Current gesture set to " + parsedMessage);
     }
     
     else if(topicList[0] === "startRecording"){
