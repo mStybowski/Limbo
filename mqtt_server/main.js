@@ -101,7 +101,7 @@ class MQTTClient{
         let topic = "sensors/control/" + sensorName;
 
         let messageObject = {
-            type:message
+            command:message
         }
 
         this.send(topic, JSON.stringify(messageObject));
