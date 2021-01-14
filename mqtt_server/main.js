@@ -357,7 +357,6 @@ class MQTTClient{
         }
         catch{
             this.serverLogs("Fine_tuner returned invalid JSON.", "warning", true)
-
             return;
         }
 
