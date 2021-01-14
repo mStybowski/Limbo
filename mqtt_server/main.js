@@ -364,15 +364,18 @@ class MQTTClient{
         }
 
         if(messageObject["data"]){
-            let data = messageObject.data;
-            let dataKeys = data.keys;
+            if(messageObject.data.keys.length > 0){
+                let data = messageObject.data;
+                let dataKeys = data.keys;
 
-            this.pipeline["fine_tune_results"] = data;
+                this.pipeline["fine_tune_results"] = data;
 
-            console.log("Fine tuning results:")
-            dataKeys.forEach((el)=>{
-                console.log(el + ": " + data[el])
-            })
+                console.log("Fine tuning results:")
+                dataKeys.forEach((el)=>{
+                    console.log(el + ": " + data[el])
+                })
+            }
+
         }
     }
 
