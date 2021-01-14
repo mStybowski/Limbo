@@ -148,7 +148,7 @@ class MQTTClient{
             preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {
                 this.postPreprocessing(message)
             }, preprocessorOpt),
-            fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt),
+            fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", (message) => {this.postFineTune(message)}, fineTunerOpt),
             classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
                 this.postClassifier(message)
             }, classifierOpt),
