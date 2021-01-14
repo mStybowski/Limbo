@@ -116,6 +116,7 @@ class MQTTClient{
         }
 
         this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
+
     }
 
     runOnce(script){
@@ -364,9 +365,9 @@ class MQTTClient{
         }
 
         if(messageObject["data"]){
-            if(messageObject.data.keys.length > 0){
+            if(Object.keys(messageObject.data).length > 0){
                 let data = messageObject.data;
-                let dataKeys = data.keys;
+                let dataKeys = Object.keys(messageObject.data);
 
                 this.pipeline["fine_tune_results"] = data;
 
