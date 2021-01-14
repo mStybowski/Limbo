@@ -333,6 +333,7 @@ class MQTTClient{
             messageObject = JSON.parse(message)
         }
         catch{
+            this.serverLogs("Classifier returned invalid JSON.", "warning", true)
             return;
         }
 
@@ -340,6 +341,13 @@ class MQTTClient{
             let log = messageObject["log"];
             this.handleScriptLog(log);
         }
+
+        this.send("ClassificationResults", message);
+        console.log("\n-----")
+        console.log(messageObject);
+        console.log("-----\n")
+
+
     }
 
     postFineTune(message){
@@ -348,6 +356,8 @@ class MQTTClient{
             messageObject = JSON.parse(message)
         }
         catch{
+            this.serverLogs("Fine_tuner returned invalid JSON.", "warning", true)
+
             return;
         }
 
