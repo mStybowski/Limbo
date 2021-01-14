@@ -331,17 +331,18 @@ class MQTTClient{
         let messageObject = {}
         try{
             messageObject = JSON.parse(message)
-            if ('log' in messageObject){
-                let logVar = messageObject.log;
-                this.handleScriptLog(logVar);
-            }
         }
         catch{
             this.serverLogs("Classifier returned invalid JSON.", "warning", true)
             return;
         }
 
-        this.send("ClassificationResults", message);
+        if (messageObject["log"]){
+            let logVar = messageObject.log;
+            this.handleScriptLog(logVar);
+        }
+
+        this.send("ClassificationResults", JSON.stringify(messageObject));
         console.log("\n-----")
         console.log(messageObject);
         console.log("-----\n")
@@ -349,19 +350,20 @@ class MQTTClient{
 
     postFineTune(message){
         let messageObject = {}
-        try{
+        try {
             messageObject = JSON.parse(message)
-            if('log' in messageObject){
-                let logVar = messageObject["log"];
-                this.handleScriptLog(logVar);
-            }
         }
         catch{
             this.serverLogs("Fine_tuner returned invalid JSON.", "warning", true)
             return;
         }
 
-        if('data' in messageObject){
+        if(messageObject["log"]){
+            let logVar = messageObject["log"];
+            this.handleScriptLog(logVar);
+        }
+
+        if(messageObject["data"]){
             let data = messageObject.data;
             let dataKeys = data.keys;
 
