@@ -12,21 +12,24 @@ function handleInterfaces(object, topic, message){
     }
 
     topicList.shift();
-    let interfaces = parsedMessage["interfaces"];
+    let __interface = parsedMessage["interface"];
 
     if(topicList[0] === "add"){
 
-        interfaces.forEach((el, index) => {
-            // use method instead of accesing data directly
-            if(object.interfacesConfig[el]){
-                object.serverLogs("Interface '" + el + "' already exists. Remove it or choose different name for the new one.", "warning");
+            if(object.interfacesConfig[__interface]){
+                object.serverLogs("Interface '" + __interface + "' already exists. Remove it or choose different name for the new one.", "warning");
             }
             else{
-                object.interfacesConfig[el]=parsedMessage["attributes"][index];
-                object.serverLogs("Newly created interface configuration '" + el + "' had been saved.", "success", true);
+                let confatr = {
+                    preprocessor: parsedMessage["preprocessor"],
+                    fine_tuner: parsedMessage["fine_tuner"],
+                    classifier: parsedMessage["classifier"]
+                }
+
+                object.interfacesConfig[__interface]=confatr;
+                object.serverLogs("Newly created interface configuration '" + __interface + "' had been saved.", "success", true);
             }
-            
-        })
+
         object.saveInterfaces();
     }
 

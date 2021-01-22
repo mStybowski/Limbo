@@ -1,1 +1,1 @@
-{"emg":{"time_window":200000,"stride":200000},"mmg":{"time_window":40000,"stride":40000}}
+{"test":{"preprocessor":["-t","500"],"fine_tuner":["-t","500"],"classifier":["-t","500"]}}

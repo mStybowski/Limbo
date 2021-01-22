@@ -10,15 +10,11 @@ function checkJSONCorrectness(message, isInterfaces=false){
     }
 
     if(isInterfaces === true){
-        if(!parsedMessage["interfaces"] || !Array.isArray(parsedMessage["interfaces"])){
+        if(!parsedMessage["interface"]){
             console.log("Incorrect message");
             return null;
         }
-    
-        else if(parsedMessage["interfaces"].length === 0){
-            console.log("Info: Nothing to do here.")
-            return null;
-        }
+
     }
  
     return parsedMessage;
