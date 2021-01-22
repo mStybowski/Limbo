@@ -285,7 +285,7 @@ class MQTTClient{
 
         let messageObject = {}
         try{
-            messageObject = JSON.parse(message.toString())
+            messageObject = JSON.parse(message)
         }
         catch{
             return;
@@ -331,7 +331,7 @@ class MQTTClient{
     postClassifier(message){
         let messageObject = {}
         try{
-            messageObject = JSON.parse(message.toString())
+            messageObject = JSON.parse(message)
         }
         catch{
             this.serverLogs("Classifier returned invalid JSON.", "warning", true)
@@ -352,7 +352,7 @@ class MQTTClient{
     postFineTune(message){
         let messageObject = {}
         try {
-            messageObject = JSON.parse(message.toString())
+            messageObject = JSON.parse(message)
         }
         catch{
             this.serverLogs("Fine_tuner returned invalid JSON.", "warning", true)
