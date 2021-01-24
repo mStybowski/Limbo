@@ -8,8 +8,6 @@ const handleSensors = require("./handleSensors")
 const acceptableTopics = require("./acceptableTopics")
 
 const fs = require('fs');
-const path = require("path")
-
 
 let defaultOptions = {
     mode: 'text',
@@ -17,10 +15,10 @@ let defaultOptions = {
     pythonOptions: ['-u'], // get print results in real-time
 };
 
-
 let subscribedTopics = ['sensors/log/+', 'sensors/data/+', 'wills', 'request/#', "interfaces/#", "command/#"];
 
-const PythonInterpreter = require("../python_shell/main")
+const PythonInterpreter = require("../python_shell/main");
+
 class MQTTClient{
 
     client;
@@ -119,9 +117,10 @@ class MQTTClient{
 
     }
 
-    runOnce(script){
-        PythonInterpreter.run(script, (err, res) => {console.log(res)})
-    }
+    //TODO:
+    // runOnce(script){
+    //     PythonInterpreter.run(script, (err, res) => {console.log(res)})
+    // }
 
     isInterfaceOnline(_interface){
         return this.state.onlineInterface === _interface;
@@ -135,50 +134,46 @@ class MQTTClient{
         return this.interfacesConfig[_interface];
     }
 
-    configurePipelineFor(interfaceName) {
-
-        let interfaceConf = this.interfacesConfig[interfaceName];
-
-
-
-        let preprocessorOpt = {...defaultOptions, args: interfaceConf["preprocessor"]}
-        let fineTunerOpt = {...defaultOptions, args: interfaceConf["fine_tuner"]}
-        let classifierOpt = {...defaultOptions, args: interfaceConf["classifier"]}
-
-        return {
-            preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {
-                this.postPreprocessing(message)
-            }, preprocessorOpt),
-            fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", (message) => {this.postFineTune(message)}, fineTunerOpt),
-            classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
-                this.postClassifier(message)
-            }, classifierOpt),
-            mem1: 0,
-            mem2: 0
-        }
-
-    }
 
     destroyPipeline(){
-        this.pipeline.preprocessor.end();
-        this.pipeline.classifier.end();
-        this.pipeline.fine_tuner.end();
-        this.clearCache()
-        this.state.onlineInterface = null;
+        for (const [key, value] of Object.entries(this.pipeline.pythonInstances)) {
+            value.end();
+        }
+        this.clearCache();
+        this.pipeline = null;
     }
 
-    createPipeline(_interface){
-        if(this.interfacesConfig[_interface]){
+    createPipeline(){
 
-            let newPipeline = this.configurePipelineFor(_interface);
-            this.savePipeline(_interface, newPipeline);
-
-            this.serverLogs("Freshly configured pipeline for " + this.state.onlineInterface + " interface has been started. Good luck!", "success", true);
+        let newPipeline = {
+            pythonInstances:{},
+            utilities:{
+                mem1: 0,
+                mem2: 0
+            }
         }
 
-        else
-            this.serverLogs("There is no " + _interface +" interface configuration available. Check configuration file: interfaces.json.", "warning", true)
-    
+        //IDLE
+        newPipeline.pythonInstances.preprocessor = PythonInterpreter.spawn("00_preprocess.py", (message) => {
+            this.postPreprocessing(message)
+        }, this.interfacesConfig[this.getOnlineInterface()].preprocessor)
+
+        //LEARN
+        if(this.state.mode === "learn")
+        {
+            newPipeline.pythonInstances.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", (message) => {
+                this.postFineTune(message)
+            }, this.interfacesConfig[this.getOnlineInterface()].fine_tuner)
+        }
+
+        //PREDICT
+        else if(this.state.mode === "predict"){
+            newPipeline.pythonInstances.classifier = PythonInterpreter.spawn("02_classify.py", (message) => {
+                this.postClassifier(message)
+            }, this.interfacesConfig[this.getOnlineInterface()].classifier)
+        }
+
+        return newPipeline;
     }
 
     savePipeline(_interface, _pipeline){
@@ -187,8 +182,9 @@ class MQTTClient{
     }
 
     clearCache(){
-        this.pipeline.mem1 = 0
-        this.pipeline.mem2 = 0
+
+        this.pipeline.utilities.mem1 = 0
+        this.pipeline.utilities.mem2 = 0
     }
 
     // MQTT LOGS PUBLISHERS --------------------
