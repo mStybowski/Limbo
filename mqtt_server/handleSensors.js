@@ -2,9 +2,17 @@ const checkJSONCorrectness = require("./checkJSONCorrectness")
 
 function handleSensors(object, topic, mess){
 
+    if(object.state.loading)
+    {
+        object.serverLogs("Server is changing its mode, please wait", "info", true)
+        return;
+    }
+
     let parsedMessage = checkJSONCorrectness(mess);
     let topicList = topic.split('/');
     topicList.shift();
+
+
 
     if(!parsedMessage){
         object.serverLogs("Server received invalid message at topic: " + topic, "warning", true);
@@ -20,6 +28,7 @@ function handleSensors(object, topic, mess){
         object.serverLogs("Interface '" + topicList[1] + "' is not used at the moment. First you must turn it on.", "info", true);
         return
     }
+
 
     if(topicList[0] === "data"){
         // if(object.isAnyScriptDown().length > 0){

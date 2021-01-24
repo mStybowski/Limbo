@@ -52,6 +52,7 @@ class MQTTClient{
     // SETTERS ------------------------------
 
     setMode(newMode){
+        this.state.loading = true;
         if(this.state.mode === "learn" && newMode !== "learn"){
             this.finishLearnMode()
         }
@@ -62,7 +63,12 @@ class MQTTClient{
 
             this.createPipeline()
             this.serverLogs("Changed mode to " + newMode, "info", true);
+
         }, 500)
+
+        setTimeout(() => {
+            this.state.loading = false;
+        }, 200)
 
     }
 
