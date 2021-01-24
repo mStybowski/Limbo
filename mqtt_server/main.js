@@ -51,18 +51,19 @@ class MQTTClient{
 
     // SETTERS ------------------------------
 
-    setMode(mode){
-        this.clearCache();
-        let fineTunerOpt = {...defaultOptions, args: ["-f", "-t", this.getOnlineInterface(), "-m", ""]}
+    setMode(newMode){
+        if(this.state.mode === "learn" && newMode !== "learn"){
+            this.finishLearnMode()
+        }
 
-        if(this.getServerMode() === "learn" && mode !== "learn"){
-            this.finishLearnMode();
-        }
-        else if(mode === "learn" && this.isAnyScriptDown().includes("fine_tuner")){
-            this.pipeline.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", this.postFineTune, fineTunerOpt);
-        }
-        this.state.mode = mode;
-        this.serverLogs("Changed mode to " + mode, "info", true);
+        setTimeout(()=>{
+            this.destroyPipeline()
+            this.state.mode = newMode;
+
+            this.createPipeline()
+            this.serverLogs("Changed mode to " + newMode, "info", true);
+        }, 500)
+
     }
 
     setOnlineInterface(newInterface){
@@ -83,11 +84,11 @@ class MQTTClient{
     isAnyScriptDown(){
         let downScripts = [];
         if(this.state.onlineInterface){
-            if(this.pipeline.preprocessor.terminated)
+            if(this.pipeline.scripts.preprocessor.terminated)
                 downScripts.push("preprocessor")
-            if(this.pipeline.fine_tuner.terminated)
+            if(this.pipeline.scripts.fine_tuner.terminated)
                 downScripts.push("fine_tuner")
-            if(this.pipeline.classifier.terminated)
+            if(this.pipeline.scripts.classifier.terminated)
                 downScripts.push("classifier")
         }
         return downScripts
@@ -115,7 +116,7 @@ class MQTTClient{
             command: "finish"
         }
 
-        this.pipeline.fine_tuner.send(JSON.stringify(objToSend));
+        this.pipeline.scripts.fine_tuner.send(JSON.stringify(objToSend));
 
     }
 
@@ -135,49 +136,90 @@ class MQTTClient{
         return this.interfacesConfig[_interface];
     }
 
-    configurePipelineFor(interfaceName) {
-
-        let interfaceConf = this.interfacesConfig[interfaceName];
-
-
-
-        let preprocessorOpt = {...defaultOptions, args: interfaceConf["preprocessor"]}
-        let fineTunerOpt = {...defaultOptions, args: interfaceConf["fine_tuner"]}
-        let classifierOpt = {...defaultOptions, args: interfaceConf["classifier"]}
-
-        return {
-            preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {
-                this.postPreprocessing(message)
-            }, preprocessorOpt),
-            fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", (message) => {this.postFineTune(message)}, fineTunerOpt),
-            classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
-                this.postClassifier(message)
-            }, classifierOpt),
-            mem1: 0,
-            mem2: 0
-        }
-
-    }
+    // configurePipelineFor(interfaceName) {
+    //
+    //     let interfaceConf = this.interfacesConfig[interfaceName];
+    //
+    //
+    //
+    //     let preprocessorOpt = {...defaultOptions, args: interfaceConf["preprocessor"]}
+    //     let fineTunerOpt = {...defaultOptions, args: interfaceConf["fine_tuner"]}
+    //     let classifierOpt = {...defaultOptions, args: interfaceConf["classifier"]}
+    //
+    //     return {
+    //         preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {
+    //             this.postPreprocessing(message)
+    //         }, preprocessorOpt),
+    //         fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", (message) => {this.postFineTune(message)}, fineTunerOpt),
+    //         classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
+    //             this.postClassifier(message)
+    //         }, classifierOpt),
+    //         mem1: 0,
+    //         mem2: 0
+    //     }
+    //
+    // }
 
     destroyPipeline(){
-        this.pipeline.preprocessor.end();
-        this.pipeline.classifier.end();
-        this.pipeline.fine_tuner.end();
+
+        for(const [key, value] of Object.entries(this.pipeline.scripts)){
+            value.end();
+        }
         this.clearCache()
-        this.state.onlineInterface = null;
     }
 
-    createPipeline(_interface){
-        if(this.interfacesConfig[_interface]){
+    addNewInterface(newInterface, data){
 
-            let newPipeline = this.configurePipelineFor(_interface);
-            this.savePipeline(_interface, newPipeline);
-
-            this.serverLogs("Freshly configured pipeline for " + this.state.onlineInterface + " interface has been started. Good luck!", "success", true);
+        if(this.interfacesConfig[newInterface]){
+            this.serverLogs("Interface '" + newInterface + "' already exists. Remove it or choose different name for the new one.", "warning");
+        }
+        else{
+            this.interfacesConfig[newInterface]=data
+            this.serverLogs("Newly created interface configuration '" + newInterface + "' had been saved.", "success", true);
         }
 
-        else
-            this.serverLogs("There is no " + _interface +" interface configuration available. Check configuration file: interfaces.json.", "warning", true)
+        this.saveInterfaces();
+    }
+
+    useInterface(newInterface){
+        if(this.interfacesConfig[newInterface]){
+            this.pipeline = this.createPipeline()
+        }
+        else{
+            this.serverLogs("There is no configurtion available for this interface", "warning", true);
+        }
+    }
+
+    createPipeline(){
+        let newPipeline = {
+            scripts:{},
+            utilities:{
+                mem1: 0,
+                mem2: 0
+            }
+        }
+
+        //IDLE
+        newPipeline.scripts.preprocessor = PythonInterpreter.spawn("00_preprocess.py", (message) => {
+            this.postPreprocessing(message)
+        }, this.interfacesConfig[this.getOnlineInterface()].preprocessor)
+
+        //LEARN
+        if(this.state.mode === "learn")
+        {
+            newPipeline.scripts.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", (message) => {
+                this.postFineTune(message)
+            }, this.interfacesConfig[this.getOnlineInterface()].fine_tuner)
+        }
+
+        //PREDICT
+        else if(this.state.mode === "predict"){
+            newPipeline.scripts.classifier = PythonInterpreter.spawn("02_classify.py", (message) => {
+                this.postClassifier(message)
+            }, this.interfacesConfig[this.getOnlineInterface()].classifier)
+        }
+
+        return newPipeline;
     
     }
 
@@ -276,7 +318,7 @@ class MQTTClient{
             this.pipeline.mem2 +=1;
 
         if(this.isInterfaceOnline(_interface))
-            this.pipeline.preprocessor.send(message);
+            this.pipeline.scripts.preprocessor.send(message);
         else
             this.serverLogs("Interface '" + _interface + "' is not used at the moment. First you must turn it on.", "warning", true);
     }
@@ -301,7 +343,7 @@ class MQTTClient{
         }
 
         else if(this.state.mode === "predict"){
-            this.pipeline.classifier.send(message);
+            this.pipeline.scripts.classifier.send(message);
         }
 
         else if(this.state.mode === "learn" && this.state.recording){
@@ -314,7 +356,7 @@ class MQTTClient{
                 messageObject["label"] = this.state.currentGesture;
                 messageObject["command"] = "gather";
                 this.pipeline.mem1 +=1;
-                this.pipeline.fine_tuner.send(JSON.stringify(messageObject));
+                this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
                 // featuresArray = messageObject["features"];
 
                 // featuresArray.forEach((el)=>{

@@ -1,23 +1,15 @@
-function checkJSONCorrectness(message, isInterfaces=false){
+function checkJSONCorrectness(rawMessage){
 
-    let parsedMessage = {};
+    let parsedMessage;
 
     try{
-        parsedMessage = JSON.parse(message.toString());
+        parsedMessage = JSON.parse(rawMessage.toString());
     }
     catch{
-        return null;
+        parsedMessage = null;
     }
 
-    if(isInterfaces === true){
-        if(!parsedMessage["interface"]){
-            console.log("Incorrect message");
-            return null;
-        }
-
-    }
- 
     return parsedMessage;
 }
 
-module.exports = checkJSONCorrectness;
+module.exports = checkJSONCorrectness
