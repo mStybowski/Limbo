@@ -338,7 +338,7 @@ class MQTTClient{
 
     handleRawData(_interface, message){
         if(this.state.recording)
-            this.pipeline.mem2 +=1;
+            this.pipeline.utilities.mem2 +=1;
 
         if(this.isInterfaceOnline(_interface))
             this.pipeline.scripts.preprocessor.send(message);
@@ -378,7 +378,7 @@ class MQTTClient{
                 messageObject = JSON.parse(message);
                 messageObject["label"] = this.state.currentGesture;
                 messageObject["command"] = "gather";
-                this.pipeline.mem1 +=1;
+                this.pipeline.utilities.mem1 +=1;
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
                 // featuresArray = messageObject["features"];
 
@@ -472,8 +472,8 @@ class MQTTClient{
         this.serverLogs("Recording finished");
         this.sendToSensor(this.state.onlineInterface, "stop");
 
-        this.serverLogs("Received " + this.pipeline.mem2 + " packets of data.")
-        this.serverLogs("Processed " + this.pipeline.mem1 + " packets of data.")
+        this.serverLogs("Received " + this.pipeline.utilities.mem2 + " packets of data.")
+        this.serverLogs("Processed " + this.pipeline.utilities.mem1 + " packets of data.")
         this.clearCache();
     }
 
