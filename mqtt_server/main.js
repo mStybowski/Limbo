@@ -292,6 +292,15 @@ class MQTTClient{
             source
         }
 
+        let colors = {
+            NEUTRAL: "\x1b[37m%s\x1b[0m",
+            SUCCESS: "\x1b[32m%s\x1b[0m",
+            INFO: "\x1b[34m%s\x1b[0m",
+            WARNING: "\x1b[33m%s\x1b[0m",
+            ERROR: "\x1b[31m%s\x1b[0m"
+        }
+
+        console.log(colors[upperCaseType], upperCaseType + ": " + payload + " from " + source);
         this.send("scriptLogs", JSON.stringify(messageObject));
     }
 
