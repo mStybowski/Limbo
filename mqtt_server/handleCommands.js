@@ -28,6 +28,10 @@ function handleCommands(object, topicList, message){
             object.serverLogs("No interface is online. First you must turn it on using interfaces/use topic.", "warning", true);
     }
 
+    else if(topicList[0] === "finishLearn"){
+        object.finishLearnMode()
+    }
+
     else if(topicList[0] === "controlSensor"){
         if(object.isAnyInterfaceOnline()){
             let _topic = "sensors/control/" + object.getOnlineInterface().toString();
