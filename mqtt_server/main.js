@@ -200,24 +200,30 @@ class MQTTClient{
             }
         }
 
+        let interfaceConf = this.interfacesConfig[this.getOnlineInterface()];
+
+        let preprocessorOpt = {...defaultOptions, args: interfaceConf["preprocessor"]}
+        let fineTunerOpt = {...defaultOptions, args: interfaceConf["fine_tuner"]}
+        let classifierOpt = {...defaultOptions, args: interfaceConf["classifier"]}
+
         //IDLE
         newPipeline.scripts.preprocessor = PythonInterpreter.spawn("00_preprocess.py", (message) => {
             this.postPreprocessing(message)
-        }, this.interfacesConfig[this.getOnlineInterface()].preprocessor)
+        }, preprocessorOpt)
 
         //LEARN
         if(this.state.mode === "learn")
         {
             newPipeline.scripts.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", (message) => {
                 this.postFineTune(message)
-            }, this.interfacesConfig[this.getOnlineInterface()].fine_tuner)
+            }, fineTunerOpt)
         }
 
         //PREDICT
         else if(this.state.mode === "predict"){
             newPipeline.scripts.classifier = PythonInterpreter.spawn("02_classify.py", (message) => {
                 this.postClassifier(message)
-            }, this.interfacesConfig[this.getOnlineInterface()].classifier)
+            }, classifierOpt)
         }
 
         return newPipeline;
