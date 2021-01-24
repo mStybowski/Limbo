@@ -53,6 +53,7 @@ class MQTTClient{
 
     setMode(newMode){
         this.state.loading = true;
+        console.log("--- --- --- --- ---   CHANGING STATE   --- --- --- --- ---")
 
         setTimeout(()=>{
             if(this.isAnyInterfaceOnline())
@@ -62,7 +63,7 @@ class MQTTClient{
             this.pipeline = this.createPipeline()
             this.serverLogs("Changed mode to " + newMode, "info", true);
 
-        }, 1500)
+        }, 500)
 
         setTimeout(() => {
             this.state.loading = false;
@@ -189,6 +190,7 @@ class MQTTClient{
         this.setOnlineInterface(newInterface);
         if(this.interfacesConfig[newInterface]){
             this.pipeline = this.createPipeline()
+            this.serverLogs("Interface is working", "success", true)
         }
         else{
             this.serverLogs("There is no configurtion available for this interface", "warning", true);
@@ -214,6 +216,7 @@ class MQTTClient{
         newPipeline.scripts.preprocessor = PythonInterpreter.spawn("00_preprocess.py", (message) => {
             this.postPreprocessing(message)
         }, preprocessorOpt)
+        this.serverLogs("Preprocessor has started.", "success", true)
 
         //LEARN
         if(this.state.mode === "learn")
@@ -221,6 +224,7 @@ class MQTTClient{
             newPipeline.scripts.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", (message) => {
                 this.postFineTune(message)
             }, fineTunerOpt)
+            this.serverLogs("Fine tuner has started.", "success", true)
         }
 
         //PREDICT
@@ -228,6 +232,7 @@ class MQTTClient{
             newPipeline.scripts.classifier = PythonInterpreter.spawn("02_classify.py", (message) => {
                 this.postClassifier(message)
             }, classifierOpt)
+            this.serverLogs("Classifier has started.", "success", true)
         }
 
         return newPipeline;
