@@ -182,6 +182,7 @@ class MQTTClient{
     }
 
     useInterface(newInterface){
+        this.setOnlineInterface(newInterface);
         if(this.interfacesConfig[newInterface]){
             this.pipeline = this.createPipeline()
         }
