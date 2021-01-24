@@ -58,7 +58,8 @@ class MQTTClient{
         }
 
         setTimeout(()=>{
-            this.destroyPipeline()
+            if(this.isAnyInterfaceOnline())
+                this.destroyPipeline()
             this.state.mode = newMode;
 
             this.createPipeline()
