@@ -22,9 +22,9 @@ function handleSensors(object, topic, mess){
     }
 
     if(topicList[0] === "data"){
-        if(object.isAnyScriptDown().length > 0){
-            object.serverLogs("The following scripts are not working: " + object.isAnyScriptDown())
-        }
+        // if(object.isAnyScriptDown().length > 0){
+        //     object.serverLogs("The following scripts are not working: " + object.isAnyScriptDown())
+        // }
         object.handleRawData(topicList[1], JSON.stringify(parsedMessage));
     }
 
