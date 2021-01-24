@@ -1,6 +1,6 @@
 const express = require("express")
 const app = express();
-const MQTTClient = require("./mqtt_server/main")
+const MQTTClient = require("./lib/limbo_server/main")
 const path = require("path")
 const open = require("open")
 

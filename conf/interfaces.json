@@ -1,1 +1,14 @@
-{"test":{"preprocessor":["-t","500"],"fine_tuner":["-t","500"],"classifier":["-t","500"]},"emg":{"preprocessor":["-t","emg","-w","300000","-s","300000"],"fine_tuner":["-t","emg","-m","python_scripts/emg/model.tar"],"classifier":["-t","emg","-m","python_scripts/emg/model.tar"]}}
+{
+  "emg": {
+    "arguments": {
+      "preprocess": [],
+      "fine_tune": [],
+      "classify": []
+    },
+    "data": {
+      "data1": "I_am_data1_string",
+      "data2": 123,
+      "data3": [123,234,345]
+    }
+  }
+}
