@@ -229,8 +229,8 @@ class MQTTClient{
     }
 
     clearCache(){
-        this.pipeline.mem1 = 0
-        this.pipeline.mem2 = 0
+        this.pipeline.utilities.mem1 = 0
+        this.pipeline.utilities.mem2 = 0
     }
 
     // MQTT LOGS PUBLISHERS --------------------
