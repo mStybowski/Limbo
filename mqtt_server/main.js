@@ -62,7 +62,7 @@ class MQTTClient{
                 this.destroyPipeline()
             this.state.mode = newMode;
 
-            this.createPipeline()
+            this.pipeline = this.createPipeline()
             this.serverLogs("Changed mode to " + newMode, "info", true);
 
         }, 500)
