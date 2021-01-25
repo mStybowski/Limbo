@@ -1,11 +1,12 @@
 const express = require("express")
 const app = express();
 const {limbo_server} = require("./mqtt_server/main")
+const MQTTClientClass = require("./mqtt_server/mqtt_client")
 const path = require("path")
 const open = require("open")
-const logi = require("./mqtt_server/logs")
 
-const client = new limbo_server();
+const MQTTClient = new MQTTClientClass()
+const LimboServer = new limbo_server()
 
 const PORT = 3005;
 
@@ -16,10 +17,10 @@ app.use(express.urlencoded({     // to support URL-encoded bodies
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-client.loadInterfaces();
+LimboServer.loadInterfaces();
 
 function decideWhatToDo(res){
-    if(client.MQTTState.connected)
+    if(MQTTClient.state.connected)
         res.redirect("/panel")
     else
         res.redirect("/failureSite")
@@ -30,26 +31,26 @@ app.get("/failureSite", (req, res) => {
 })
 
 app.post("/attemptconnection", (req, res) => {
-    client.listen(req.body.ip);
+    MQTTClient.connect(req.body.ip);
     setTimeout(()=>{decideWhatToDo(res)}, 700);
 })
 
 app.get("/panel", (req, res) => {
-    if(client.MQTTState.connected)
+    if(MQTTClient.state.connected)
         res.sendFile(path.join(__dirname, "public", "spa", "panel.html"));
     else
         res.redirect("/login")
 })
 
 app.get("/", (req, res) => {
-    if(client.MQTTState.connected)
+    if(MQTTClient.state.connected)
         res.sendFile(path.join(__dirname, "public", "spa", "panel.html"));
     else
         res.sendFile(path.join(__dirname, "public", "server", "login.html"));
 })
 
 app.get("/login", (req, res) => {
-    if(client.MQTTState.connected)
+    if(MQTTClient.state.connected)
         res.sendFile(path.join(__dirname, "public", "server", "logout.html"));
     else
         res.sendFile(path.join(__dirname, "public", "server", "login.html"));

@@ -1,5 +1,6 @@
 const mqtt = require("mqtt")
 
+const serverState = require("./serverState")
 const handleRequests = require("./handleRequests")
 const handleInterfaces = require("./handleInterfacesSettings")
 const handleCommands = require("./handleCommands")
@@ -157,15 +158,15 @@ class LimboServer{
         this.saveInterfaces();
     }
 
-    startCreatingPipeline(){
-        if(this.isAnyInterfaceOnline() && this.getServerMode() && !this.state.run && !this.state.pipelineCreated)
+    static startCreatingPipeline(){
+        if(serverState.getState().onlineInterface && serverState.getState().mode && !serverState.getState().run && !serverState.getState().pipelineCreated)
             this.createPipeline()
         else
             this.serverLogs("Couldn't create Pipeline. Check server state.", "warning", true)
 
     }
 
-    createPipeline(){
+    static createPipeline(){
         let newPipeline = {
             scripts:{},
             utilities:{
@@ -247,7 +248,7 @@ class LimboServer{
 
     // MQTT LOGS PUBLISHERS --------------------
 
-    serverLogs(_payload, type="info", verbose=false){
+    static serverLogs(_payload, type="info", verbose=false){
 
         let upperCaseType = type.toUpperCase();
 
@@ -553,6 +554,7 @@ class LimboServer{
         })
         this.client = client;
     }
+
 }
 
 function validateTopic(baseTopic, topic){

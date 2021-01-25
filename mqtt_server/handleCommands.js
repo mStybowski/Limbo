@@ -1,14 +1,17 @@
+const {limbo_server} = require("./main")
+const serverState = require("./serverState")
+
 function handleCommands(object, topicList, message){
 
     topicList.shift();
     let parsedMessage = message.toString();
 
     if(topicList[0] === "useMode")
-        object.setMode(parsedMessage)
+        serverState.setState({mode:parsedMessage})
 
 
     else if(topicList[0] === "createPipeline" || topicList[0] === "cp")
-        object.startCreatingPipeline();
+        limbo_server.startCreatingPipeline();
 
 
     else if(topicList[0] === "startPipeline" || topicList[0] === "start")
