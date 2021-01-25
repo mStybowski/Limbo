@@ -51,7 +51,7 @@ function handleInterfaces(object, topic, rawMessage){
     }
 
     else if(topicList[0] === "use")
-        object.useInterface(parsedInterface)
+        object.setInterface(parsedInterface)
 
     else if(topicList[0] === "end"){
         object.serverLogs("Topic interfaces/end is not available", "warning");

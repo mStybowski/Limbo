@@ -2,7 +2,7 @@
   "name": "limbo_backend",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "limbo.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -10,10 +10,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "date-and-time": "^0.14.2",
     "express": "^4.17.1",
     "mqtt": "^4.2.6",
     "open": "^7.3.1",
     "path": "^0.12.7",
-    "python-shell": "^2.0.3"
+    "python-shell": "^2.0.3",
+    "terminal-kit": "^1.45.5"
   }
 }

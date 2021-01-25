@@ -2,9 +2,9 @@ const checkJSONCorrectness = require("./checkJSONCorrectness")
 
 function handleSensors(object, topic, mess){
 
-    if(object.state.loading)
+    if(!object.state.run)
     {
-        object.serverLogs("Server is changing its mode, please wait", "info", true)
+        object.serverLogs("Pipeline hasn't been started yet", "info", true)
         return;
     }
 

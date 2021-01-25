@@ -6,7 +6,7 @@ function validateInterfaceMessage(rawMessage){
 
     try{
         let chosenInterface = messageObject["interface"];
-        if(chosenInterface)
+        if(typeof chosenInterface === "string")
             return messageObject
     }
     catch{

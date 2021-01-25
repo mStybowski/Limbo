@@ -4,13 +4,11 @@ function handleCommands(object, topicList, message){
     let parsedMessage = message.toString();
 
     if(topicList[0] === "useMode"){
-        if(parsedMessage === "idle" || parsedMessage === "learn" || parsedMessage === "predict" && object.isAnyInterfaceOnline()){
-            object.setMode(parsedMessage)
-        }
-        else{
-            console.log("No interface is online or wrong mode requested");
-        }
-        
+        object.setMode(parsedMessage)
+    }
+
+    else if(topicList[0] === "createPipeline" || topicList[0] === "cp"){
+        object.startCreatingPipeline();
     }
 
     else if(topicList[0] === "gesture"){

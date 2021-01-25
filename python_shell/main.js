@@ -13,7 +13,7 @@ class PythonInterpreter{
 
         let pInterpreter = new PythonShell(url, options);
 
-        
+        pInterpreter.childProcess.on("spawn", () => {console.log('\x1b[36m%s\x1b[0m', `${url} IS RUNNING`)})
         pInterpreter.on('message', onMessageCallback);
         pInterpreter.on('close', ()=>{console.log('\x1b[36m%s\x1b[0m', "Script " + url + " has been exited. \n")});
         pInterpreter.on('error', function (stderr) {

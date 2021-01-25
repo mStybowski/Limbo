@@ -5,35 +5,33 @@ const handleInterfaces = require("./handleInterfacesSettings")
 const handleCommands = require("./handleCommands")
 const handleSensors = require("./handleSensors")
 
+const availableModes = require("./settings")
+
 const acceptableTopics = require("./acceptableTopics")
 
 const fs = require('fs');
 const path = require("path")
 
-
-let defaultOptions = {
-    mode: 'text',
-    scriptPath: './python_scripts/',
-    pythonOptions: ['-u'], // get print results in real-time
-};
-
-
 let subscribedTopics = ['sensors/log/+', 'sensors/data/+', 'wills', 'request/#', "interfaces/#", "command/#"];
 
 const PythonInterpreter = require("../python_shell/main")
-class MQTTClient{
+class LimboServer{
 
-    client;
-
-    state={
+    MQTTState={
         connected: false,
         mqttBrokerIP: "",
-        mode: "idle",
-        onlineInterface: null,
-        recording: false
+        protocol: "WS"
     }
 
-    pipeline = {};
+    state={
+        gesture: null,
+        onlineInterface: null,
+        mode: null,
+        isRecording: false,
+        run: false
+    }
+
+    client;
 
     // GETTERS -------------------------------
 
@@ -51,53 +49,68 @@ class MQTTClient{
 
     // SETTERS ------------------------------
 
+    updateAfterSet(path, newValue){
+        this.send(path, newValue.toString())
+    }
+
     setMode(newMode){
-        this.state.loading = true;
-        console.log("--- --- --- --- ---   CHANGING STATE   --- --- --- --- ---")
+        if(this.getServerMode() === newMode){
+            this.serverLogs("Server is already using " + this.getServerMode() + " mode", "warning", true)
 
-        setTimeout(()=>{
-            if(this.isAnyInterfaceOnline())
-                this.destroyPipeline()
+        }
+        else if(availableModes.modes[newMode]) {
             this.state.mode = newMode;
+            setTimeout(() => {
+                this.updateAfterSet("server/state/mode", this.state.mode);
+                this.serverLogs(`New server mode: ${this.state.mode}.`, "success");
+            },100)
+        }
+        else{
+            this.serverLogs("Received unknown server mode: " + newMode, "warning", true)
 
-            this.pipeline = this.createPipeline()
-            this.serverLogs("Changed mode to " + newMode, "info", true);
-
-        }, 500)
-
-        setTimeout(() => {
-            this.state.loading = false;
-        }, 200)
-
+            console.log("Available options are: ")
+            Object.keys(availableModes.modes).forEach((el)=>{
+                console.log("\x1b[34m%s\x1b[0m", "- " + el);
+            })
+        }
     }
 
-    setOnlineInterface(newInterface){
-        this.state.onlineInterface = newInterface;
+    setInterface(newInterface){
+        if(this.getOnlineInterface() === newInterface){
+            this.serverLogs("Server is already using " + this.getOnlineInterface() + " interface", "warning", true)
+
+        }
+        else if(this.interfacesConfig[newInterface]) {
+            this.state.onlineInterface = newInterface;
+            setTimeout(() => {
+                this.updateAfterSet("server/state/onlineInterface", this.state.onlineInterface);
+                this.serverLogs(`New online interface: ${this.state.onlineInterface}.`, "info");
+            },100)
+        }
+        else{
+            this.serverLogs("Received unknown interface name: " + newInterface, "warning", true)
+
+            console.log("Configured interfaces are: ")
+            Object.keys(this.interfacesConfig).forEach((el)=>{
+                console.log("\x1b[34m%s\x1b[0m", "- " + el);
+            })
+        }
     }
+
+
 
     setGesture(gesture){
         this.state.currentGesture = gesture;
+        setTimeout(() => {this.updateAfterSet("server/state/currentGesture", this.state.currentGesture)}, 100);
     }
 
     setServerState(newState){
-        this.state = {...this.state, ...newState};
-        this.send("server/state", JSON.stringify(this.state));
+        this.MQTTState = {...this.MQTTState, ...newState};
+        this.send("server/state", JSON.stringify(this.MQTTState));
+        //TODO UpdateAfterSet
     }
 
     // UTILITIES ------------------------------
-
-    isAnyScriptDown(){
-        let downScripts = [];
-        if(this.state.onlineInterface){
-            if(this.pipeline.scripts.preprocessor.terminated)
-                downScripts.push("preprocessor")
-            if(this.pipeline.scripts.fine_tuner.terminated)
-                downScripts.push("fine_tuner")
-            if(this.pipeline.scripts.classifier.terminated)
-                downScripts.push("classifier")
-        }
-        return downScripts
-    }
 
     send(topic, message){
         this.client.publish(topic, message);
@@ -125,10 +138,6 @@ class MQTTClient{
 
     }
 
-    runOnce(script){
-        PythonInterpreter.run(script, (err, res) => {console.log(res)})
-    }
-
     isInterfaceOnline(_interface){
         return this.state.onlineInterface === _interface;
     }
@@ -139,38 +148,6 @@ class MQTTClient{
 
     isInterfaceConfigured(_interface){
         return this.interfacesConfig[_interface];
-    }
-
-    // configurePipelineFor(interfaceName) {
-    //
-    //     let interfaceConf = this.interfacesConfig[interfaceName];
-    //
-    //
-    //
-    //     let preprocessorOpt = {...defaultOptions, args: interfaceConf["preprocessor"]}
-    //     let fineTunerOpt = {...defaultOptions, args: interfaceConf["fine_tuner"]}
-    //     let classifierOpt = {...defaultOptions, args: interfaceConf["classifier"]}
-    //
-    //     return {
-    //         preprocessor: PythonInterpreter.spawn("00_preprocess.py", (message) => {
-    //             this.postPreprocessing(message)
-    //         }, preprocessorOpt),
-    //         fine_tuner: PythonInterpreter.spawn("01_fine_tune.py", (message) => {this.postFineTune(message)}, fineTunerOpt),
-    //         classifier: PythonInterpreter.spawn("02_classify.py", (message) => {
-    //             this.postClassifier(message)
-    //         }, classifierOpt),
-    //         mem1: 0,
-    //         mem2: 0
-    //     }
-    //
-    // }
-
-    destroyPipeline(){
-
-        for(const [key, value] of Object.entries(this.pipeline.scripts)){
-            value.end();
-        }
-        this.clearCache()
     }
 
     addNewInterface(newInterface, data){
@@ -186,14 +163,9 @@ class MQTTClient{
         this.saveInterfaces();
     }
 
-    useInterface(newInterface){
-        this.setOnlineInterface(newInterface);
-        if(this.interfacesConfig[newInterface]){
-            this.pipeline = this.createPipeline()
-            this.serverLogs("Interface is working", "success", true)
-        }
-        else{
-            this.serverLogs("There is no configurtion available for this interface", "warning", true);
+    startCreatingPipeline(){
+        if(this.isAnyInterfaceOnline() && this.getServerMode()){
+            this.createPipeline()
         }
     }
 
@@ -206,41 +178,59 @@ class MQTTClient{
             }
         }
 
-        let interfaceConf = this.interfacesConfig[this.getOnlineInterface()];
+        let defaultOptions = {
+            mode: 'text',
+            scriptPath: './python_scripts/',
+            pythonOptions: ['-u'], // get print results in real-time
+        };
 
-        let preprocessorOpt = {...defaultOptions, args: interfaceConf["preprocessor"]}
-        let fineTunerOpt = {...defaultOptions, args: interfaceConf["fine_tuner"]}
-        let classifierOpt = {...defaultOptions, args: interfaceConf["classifier"]}
+        let onlineConfiguration = this.interfacesConfig[this.getOnlineInterface()];
+
+        let preprocessorOpt = {...defaultOptions, args: onlineConfiguration.preprocessor}
+        let fineTunerOpt = {...defaultOptions, args: onlineConfiguration.fine_tuner}
+        let classifierOpt = {...defaultOptions, args: onlineConfiguration.classifier}
 
         //IDLE
         newPipeline.scripts.preprocessor = PythonInterpreter.spawn("00_preprocess.py", (message) => {
             this.postPreprocessing(message)
         }, preprocessorOpt)
-        this.serverLogs("Preprocessor has started.", "success", true)
+        this.serverLogs("Starting preprocessor ....", "info", true)
 
         //LEARN
-        if(this.state.mode === "learn")
+        if(this.MQTTState.mode === "learn")
         {
             newPipeline.scripts.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", (message) => {
                 this.postFineTune(message)
             }, fineTunerOpt)
-            this.serverLogs("Fine tuner has started.", "success", true)
+            this.serverLogs("Starting fine_tuner ....", "info", true)
         }
 
         //PREDICT
-        else if(this.state.mode === "predict"){
+        else if(this.MQTTState.mode === "predict"){
             newPipeline.scripts.classifier = PythonInterpreter.spawn("02_classify.py", (message) => {
                 this.postClassifier(message)
             }, classifierOpt)
-            this.serverLogs("Classifier has started.", "success", true)
+            this.serverLogs("Starting classifier ....", "info", true)
         }
 
-        return newPipeline;
+        this.pipeline = newPipeline
     
     }
 
+    startPipeline(){
+        this.state.run = true;
+
+        this.serverLogs("Pipeline has been started", "info", true)
+    }
+
+    stopPipeline(){
+        this.state.run = false;
+        this.serverLogs("Pipeline has been stopped", "info", true)
+
+    }
+
     savePipeline(_interface, _pipeline){
-        this.state.onlineInterface = _interface;
+        this.MQTTState.onlineInterface = _interface;
         this.pipeline = _pipeline;
     }
 
@@ -339,7 +329,7 @@ class MQTTClient{
     }
 
     handleRawData(_interface, message){
-        if(this.state.recording)
+        if(this.MQTTState.recording)
             this.pipeline.utilities.mem2 +=1;
 
         if(this.isInterfaceOnline(_interface))
@@ -363,22 +353,22 @@ class MQTTClient{
             return;
         }
 
-        if(this.state.mode === "idle"){
+        if(this.MQTTState.mode === "idle"){
             console.log(messageObject)
         }
 
-        else if(this.state.mode === "predict"){
+        else if(this.MQTTState.mode === "predict"){
             this.pipeline.scripts.classifier.send(message);
         }
 
-        else if(this.state.mode === "learn" && this.state.recording){
+        else if(this.MQTTState.mode === "learn" && this.MQTTState.recording){
 
             // let featuresArray = [];
             let messageObject = {};
 
             try{
                 messageObject = JSON.parse(message);
-                messageObject["label"] = this.state.currentGesture;
+                messageObject["label"] = this.MQTTState.currentGesture;
                 messageObject["command"] = "gather";
                 this.pipeline.utilities.mem1 +=1;
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
@@ -461,18 +451,18 @@ class MQTTClient{
 
     startRecording(){
         this.clearCache();
-        this.state.recording = true;
+        this.MQTTState.recording = true;
         this.serverLogs("Recording Started");
-        this.sendToSensor(this.state.onlineInterface, "start");
+        this.sendToSensor(this.MQTTState.onlineInterface, "start");
 
 
         setTimeout(()=>{this.finishRecording()}, 3500)
     }
 
     finishRecording(){
-        this.state.recording = false;
+        this.MQTTState.recording = false;
         this.serverLogs("Recording finished");
-        this.sendToSensor(this.state.onlineInterface, "stop");
+        this.sendToSensor(this.MQTTState.onlineInterface, "stop");
 
         this.serverLogs("Received " + this.pipeline.utilities.mem2 + " packets of data.")
         this.serverLogs("Processed " + this.pipeline.utilities.mem1 + " packets of data.")
@@ -488,7 +478,7 @@ class MQTTClient{
             reconnectPeriod: 5
         }
 
-        if(this.state.connected)
+        if(this.MQTTState.connected)
             return
 
         const client = mqtt.connect(ip, options);
@@ -513,7 +503,7 @@ class MQTTClient{
                 }
             );
 
-            console.log("\x1b[32m", "✔ Connected to MQTT Broker at URL: " + this.state.mqttBrokerIP + " (2/2)\x1b[0m");
+            console.log("\x1b[32m", "✔ Connected to MQTT Broker at URL: " + this.MQTTState.mqttBrokerIP + " (2/2)\x1b[0m");
 
             client.subscribe(subscribedTopics, function (err) {
                 if (!err) {
@@ -574,4 +564,4 @@ function validateTopic(baseTopic, topic){
     return acceptableTopics[baseTopic].includes(topic)
 }
 
-module.exports = MQTTClient
+module.exports = LimboServer

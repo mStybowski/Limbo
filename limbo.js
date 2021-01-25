@@ -1,10 +1,11 @@
 const express = require("express")
 const app = express();
-const MQTTClient = require("./mqtt_server/main")
+const LimboServer = require("./mqtt_server/main")
 const path = require("path")
 const open = require("open")
+const logi = require("./mqtt_server/logs")
 
-const client = new MQTTClient();
+const client = new LimboServer();
 
 const PORT = 3005;
 
@@ -18,7 +19,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 client.loadInterfaces();
 
 function decideWhatToDo(res){
-    if(client.state.connected)
+    if(client.MQTTState.connected)
         res.redirect("/panel")
     else
         res.redirect("/failureSite")
@@ -34,21 +35,21 @@ app.post("/attemptconnection", (req, res) => {
 })
 
 app.get("/panel", (req, res) => {
-    if(client.state.connected)
+    if(client.MQTTState.connected)
         res.sendFile(path.join(__dirname, "public", "spa", "panel.html"));
     else
         res.redirect("/login")
 })
 
 app.get("/", (req, res) => {
-    if(client.state.connected)
+    if(client.MQTTState.connected)
         res.sendFile(path.join(__dirname, "public", "spa", "panel.html"));
     else
         res.sendFile(path.join(__dirname, "public", "server", "login.html"));
 })
 
 app.get("/login", (req, res) => {
-    if(client.state.connected)
+    if(client.MQTTState.connected)
         res.sendFile(path.join(__dirname, "public", "server", "logout.html"));
     else
         res.sendFile(path.join(__dirname, "public", "server", "login.html"));
@@ -60,5 +61,6 @@ app.get("/panelforce", (req, res) => {
 
 app.listen(PORT, () => {
     console.log("\x1b[32m", "✔ Server running (1/2)", "\x1b[0m")
+    // logi.WelcomeServer();
     open("http://localhost:" + PORT);
 });
