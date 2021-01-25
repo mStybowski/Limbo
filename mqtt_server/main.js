@@ -55,10 +55,9 @@ class LimboServer{
     }
 
     setMode(newMode){
-        if(this.getServerMode() === newMode){
+        if(this.getServerMode() === newMode)
             this.serverLogs("Server is already using " + this.getServerMode() + " mode", "warning", true)
 
-        }
         else if(availableModes.modes[newMode]) {
             this.state.mode = newMode;
             setTimeout(() => {
@@ -77,10 +76,9 @@ class LimboServer{
     }
 
     setInterface(newInterface){
-        if(this.getOnlineInterface() === newInterface){
+        if(this.getOnlineInterface() === newInterface)
             this.serverLogs("Server is already using " + this.getOnlineInterface() + " interface", "warning", true)
 
-        }
         else if(this.interfacesConfig[newInterface]) {
             this.state.onlineInterface = newInterface;
             setTimeout(() => {
@@ -149,9 +147,9 @@ class LimboServer{
 
     addNewInterface(newInterface, data){
 
-        if(this.interfacesConfig[newInterface]){
+        if(this.interfacesConfig[newInterface])
             this.serverLogs("Interface '" + newInterface + "' already exists. Remove it or choose different name for the new one.", "warning");
-        }
+
         else{
             this.interfacesConfig[newInterface]=data
             this.serverLogs("Newly created interface configuration '" + newInterface + "' had been saved.", "success", true);
@@ -219,15 +217,12 @@ class LimboServer{
             if(!this.state.run){
                 this.state.run = true;
                 this.serverLogs("Pipeline has been started", "info", true)
-
             }
-            else{
+            else
                 this.serverLogs("Pipeline is already running", "warning", true)
-            }
         }
-        else{
+        else
             this.serverLogs("There is no pipeline", "warning", true)
-        }
     }
 
     stopPipeline(){
@@ -235,15 +230,12 @@ class LimboServer{
             if(this.state.run){
                 this.state.run = false;
                 this.serverLogs("Pipeline has been stopped", "info", true)
-
             }
-            else{
+            else
                 this.serverLogs("Pipeline hasn't been started yet", "warning", true)
-            }
         }
-        else{
+        else
             this.serverLogs("There is no pipeline", "warning", true)
-        }
     }
 
     clearCache(){
@@ -462,7 +454,6 @@ class LimboServer{
         this.serverLogs("Recording Started");
         this.sendToSensor(this.state.onlineInterface, "start");
 
-
         setTimeout(()=>{this.finishRecording()}, 3500)
     }
 
@@ -489,7 +480,6 @@ class LimboServer{
             return
 
         const client = mqtt.connect(ip, options);
-        
 
         client.on("disconnect", () => {
             this.setServerState(
@@ -544,12 +534,9 @@ class LimboServer{
                 return;
             }
 
-
             // GUI REQUESTS
             if(parsedTopic[0] === "request")
                 handleRequests(this, parsedTopic, mess);
-
-
 
             // INTERFACES
             else if(parsedTopic[0] === "interfaces"){
