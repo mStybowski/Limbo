@@ -3,21 +3,21 @@ function handleCommands(object, topicList, message){
     topicList.shift();
     let parsedMessage = message.toString();
 
-    if(topicList[0] === "useMode"){
+    if(topicList[0] === "useMode")
         object.setMode(parsedMessage)
-    }
 
-    else if(topicList[0] === "createPipeline" || topicList[0] === "cp"){
+
+    else if(topicList[0] === "createPipeline" || topicList[0] === "cp")
         object.startCreatingPipeline();
-    }
 
-    else if(topicList[0] === "startPipeline" || topicList[0] === "start"){
+
+    else if(topicList[0] === "startPipeline" || topicList[0] === "start")
         object.startPipeline();
-    }
 
-    else if(topicList[0] === "stopPipeline" || topicList[0] === "stop"){
+
+    else if(topicList[0] === "stopPipeline" || topicList[0] === "stop")
         object.stopPipeline();
-    }
+
 
     else if(topicList[0] === "gesture"){
         object.setGesture(parsedMessage);
@@ -34,9 +34,9 @@ function handleCommands(object, topicList, message){
             object.serverLogs("No interface is online. First you must turn it on using interfaces/use topic.", "warning", true);
     }
 
-    else if(topicList[0] === "finishLearn"){
+    else if(topicList[0] === "finishLearn")
         object.finishLearnMode()
-    }
+
 
     else if(topicList[0] === "controlSensor"){
         if(object.isAnyInterfaceOnline()){
@@ -44,15 +44,12 @@ function handleCommands(object, topicList, message){
             object.send(_topic, message.toString())
             object.serverLogs("Command " + message.toString() + " sent.")
         }
-        else{
+        else
             object.serverLogs("No interface is currently in use", "warning", true)
-        }
-     
     }
 
-    else{
+    else
         object.serverLogs("I dont know this topic.", "warning")
-    }
 }
 
 module.exports = handleCommands;
