@@ -158,9 +158,11 @@ class LimboServer{
     }
 
     startCreatingPipeline(){
-        if(this.isAnyInterfaceOnline() && this.getServerMode()){
+        if(this.isAnyInterfaceOnline() && this.getServerMode() && !this.state.run && !this.state.pipelineCreated)
             this.createPipeline()
-        }
+        else
+            this.serverLogs("Couldn't create Pipeline. Check server state.", "warning", true)
+
     }
 
     createPipeline(){
