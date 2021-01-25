@@ -37,7 +37,6 @@ function handleCommands(object, topicList, message){
     else if(topicList[0] === "finishLearn")
         object.finishLearnMode()
 
-
     else if(topicList[0] === "controlSensor"){
         if(object.isAnyInterfaceOnline()){
             let _topic = "sensors/control/" + object.getOnlineInterface().toString();

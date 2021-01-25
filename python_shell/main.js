@@ -1,4 +1,5 @@
 let {PythonShell} = require('python-shell'); 
+const fileState = require("../mqtt_server/filesState")
 
 // Configuration object
 let defaultOptions = {
@@ -7,15 +8,22 @@ let defaultOptions = {
     pythonOptions: ['-u'], // get print results in real-time
     args: ['1', '2', '3']
 };
+
 class PythonInterpreter{
 
     static spawn(url, onMessageCallback, options = defaultOptions){
 
         let pInterpreter = new PythonShell(url, options);
 
-        pInterpreter.childProcess.on("spawn", () => {console.log('\x1b[36m%s\x1b[0m', `${url} IS RUNNING`)})
+        pInterpreter.childProcess.on("spawn", () => {
+            console.log('\x1b[36m%s\x1b[0m', `${url} IS RUNNING`)
+            fileState.setScriptState(url, true)
+        })
         pInterpreter.on('message', onMessageCallback);
-        pInterpreter.on('close', ()=>{console.log('\x1b[36m%s\x1b[0m', "Script " + url + " has been exited. \n")});
+        pInterpreter.on('close', ()=>{
+            console.log('\x1b[36m%s\x1b[0m', "Script " + url + " has been exited. \n")
+            fileState.setScriptState(url, false)
+        });
         pInterpreter.on('error', function (stderr) {
             pInterpreter.end(()=>{
                 console.log('\x1b[33m%s\x1b[0m', "Critical error at script: " + url + ". Finished this script to prevent server failure. Try again.")

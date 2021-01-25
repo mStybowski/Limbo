@@ -1,11 +1,11 @@
 const express = require("express")
 const app = express();
-const LimboServer = require("./mqtt_server/main")
+const {limbo_server} = require("./mqtt_server/main")
 const path = require("path")
 const open = require("open")
 const logi = require("./mqtt_server/logs")
 
-const client = new LimboServer();
+const client = new limbo_server();
 
 const PORT = 3005;
 

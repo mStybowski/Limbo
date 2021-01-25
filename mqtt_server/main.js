@@ -558,4 +558,4 @@ function validateTopic(baseTopic, topic){
     return acceptableTopics[baseTopic].includes(topic)
 }
 
-module.exports = LimboServer
+exports.limbo_server = LimboServer
