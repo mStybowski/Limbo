@@ -11,6 +11,14 @@ function handleCommands(object, topicList, message){
         object.startCreatingPipeline();
     }
 
+    else if(topicList[0] === "startPipeline" || topicList[0] === "start"){
+        object.startPipeline();
+    }
+
+    else if(topicList[0] === "stopPipeline" || topicList[0] === "stop"){
+        object.stopPipeline();
+    }
+
     else if(topicList[0] === "gesture"){
         object.setGesture(parsedMessage);
         object.serverLogs("Current gesture set to " + parsedMessage);

@@ -28,7 +28,8 @@ class LimboServer{
         onlineInterface: null,
         mode: null,
         isRecording: false,
-        run: false
+        run: false,
+        pipelineCreated: false
     }
 
     client;
@@ -214,24 +215,40 @@ class LimboServer{
         }
 
         this.pipeline = newPipeline
-    
+        this.state.pipelineCreated = true;
+        //TODO jeśli któryś ze skryptów sie wywyalił to nie twórz pipelinu
     }
 
     startPipeline(){
-        this.state.run = true;
+        if(this.state.pipelineCreated){
+            if(!this.state.run){
+                this.state.run = true;
+                this.serverLogs("Pipeline has been started", "info", true)
 
-        this.serverLogs("Pipeline has been started", "info", true)
+            }
+            else{
+                this.serverLogs("Pipeline is already running", "warning", true)
+            }
+        }
+        else{
+            this.serverLogs("There is no pipeline", "warning", true)
+        }
     }
 
     stopPipeline(){
-        this.state.run = false;
-        this.serverLogs("Pipeline has been stopped", "info", true)
+        if(this.state.pipelineCreated){
+            if(this.state.run){
+                this.state.run = false;
+                this.serverLogs("Pipeline has been stopped", "info", true)
 
-    }
-
-    savePipeline(_interface, _pipeline){
-        this.MQTTState.onlineInterface = _interface;
-        this.pipeline = _pipeline;
+            }
+            else{
+                this.serverLogs("Pipeline hasn't been startet yet", "warning", true)
+            }
+        }
+        else{
+            this.serverLogs("There is no pipeline", "warning", true)
+        }
     }
 
     clearCache(){

@@ -4,7 +4,7 @@ function handleSensors(object, topic, mess){
 
     if(!object.state.run)
     {
-        object.serverLogs("Pipeline hasn't been started yet", "info", true)
+        object.serverLogs("Received data but pipeline is not running. Use topic command/startPipeline or command/start to run pipeline", "info", true)
         return;
     }
 
