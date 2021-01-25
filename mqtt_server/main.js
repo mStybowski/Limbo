@@ -379,7 +379,6 @@ class LimboServer{
 
         if(messageObject["log"]){
             this.handleScriptLog(messageObject["log"]);
-            return;
         }
 
         if(this.state.mode === "idle"){
@@ -392,17 +391,17 @@ class LimboServer{
 
         else if(this.state.mode === "learn" && this.state.recording){
 
-            let messageObject = {};
+            let _messageObject = {};
 
             try{
-                messageObject = JSON.parse(message);
+                // messageObject = JSON.parse(message);
                 messageObject["label"] = this.state.gesture;
                 messageObject["command"] = "gather";
                 this.pipeline.utilities.mem1 +=1;
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
             }
             catch{
-                this.serverLogs("Odebrano niepoprawne dane")
+                this.serverLogs("Something went wrong")
             }
         }
 
