@@ -17,12 +17,10 @@ class PythonInterpreter{
 
         pInterpreter.childProcess.on("spawn", () => {
             console.log('\x1b[36m%s\x1b[0m', `${url} IS RUNNING`)
-            fileState.setScriptState(url, true)
         })
         pInterpreter.on('message', onMessageCallback);
         pInterpreter.on('close', ()=>{
             console.log('\x1b[36m%s\x1b[0m', "Script " + url + " has been exited. \n")
-            fileState.setScriptState(url, false)
         });
         pInterpreter.on('error', function (stderr) {
             pInterpreter.end(()=>{
