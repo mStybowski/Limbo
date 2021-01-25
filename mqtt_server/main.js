@@ -240,6 +240,28 @@ class LimboServer{
             this.serverLogs("There is no pipeline", "warning", true)
     }
 
+    startDestroyingPipeline(){
+        if(this.state.pipelineCreated){
+            if(!this.state.run){
+                this.destroyPipeline();
+            }
+            else{
+                this.serverLogs("First you must stop current pipeline", "warning")
+            }
+        }
+        else{
+            this.serverLogs("There is no pipeline created", "warning", false);
+
+        }
+    }
+
+    destroyPipeline(){
+        for(const [key, value] of Object.entries(this.pipeline.scripts)){
+            value.end();
+        }
+        this.state.pipelineCreated = false;
+    }
+
     clearCache(){
         this.pipeline.utilities.mem1 = 0
         this.pipeline.utilities.mem2 = 0

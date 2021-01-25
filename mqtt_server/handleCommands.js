@@ -10,6 +10,8 @@ function handleCommands(object, topicList, message){
     else if(topicList[0] === "createPipeline" || topicList[0] === "cp")
         object.startCreatingPipeline();
 
+    else if(topicList[0] === "destroyPipeline" || topicList[0] === "dp")
+        object.startDestroyingPipeline();
 
     else if(topicList[0] === "startPipeline" || topicList[0] === "start")
         object.startPipeline();
