@@ -9,7 +9,8 @@ services:
     restart: always
   emqx:
     image: emqx/emqx:latest
-    container_name: emqx
+    container_name: emqx-broker
     ports:
       - 18083:18083
+      - 8083:8083
     restart: always
