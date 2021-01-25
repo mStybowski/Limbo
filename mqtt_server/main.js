@@ -27,7 +27,7 @@ class LimboServer{
         gesture: null,
         onlineInterface: null,
         mode: null,
-        isRecording: false,
+        recording: false,
         run: false,
         pipelineCreated: false
     }
@@ -243,7 +243,7 @@ class LimboServer{
 
             }
             else{
-                this.serverLogs("Pipeline hasn't been startet yet", "warning", true)
+                this.serverLogs("Pipeline hasn't been started yet", "warning", true)
             }
         }
         else{
@@ -362,6 +362,7 @@ class LimboServer{
             messageObject = JSON.parse(message)
         }
         catch{
+            this.serverLogs("Preprocessor returned invalid JSON.", "warning", true)
             return;
         }
 
@@ -370,22 +371,22 @@ class LimboServer{
             return;
         }
 
-        if(this.MQTTState.mode === "idle"){
+        if(this.state.mode === "idle"){
             console.log(messageObject)
         }
 
-        else if(this.MQTTState.mode === "predict"){
+        else if(this.state.mode === "predict"){
             this.pipeline.scripts.classifier.send(message);
         }
 
-        else if(this.MQTTState.mode === "learn" && this.MQTTState.recording){
+        else if(this.state.mode === "learn" && this.state.recording){
 
             // let featuresArray = [];
             let messageObject = {};
 
             try{
                 messageObject = JSON.parse(message);
-                messageObject["label"] = this.MQTTState.currentGesture;
+                messageObject["label"] = this.state.gesture;
                 messageObject["command"] = "gather";
                 this.pipeline.utilities.mem1 +=1;
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
@@ -418,9 +419,9 @@ class LimboServer{
         }
 
         this.send("ClassificationResults", JSON.stringify(messageObject));
-        console.log("\n-----")
-        console.log(messageObject);
         console.log("-----\n")
+        console.log(messageObject);
+        console.log("\n")
     }
 
     postFineTune(message){
@@ -443,7 +444,7 @@ class LimboServer{
                 let data = messageObject.data;
                 let dataKeys = Object.keys(messageObject.data);
 
-                this.pipeline["fine_tune_results"] = data;
+                this.send("finetuneResults", JSON.stringify(messageObject.data))
 
                 console.log("Fine tuning results:")
                 dataKeys.forEach((el)=>{
