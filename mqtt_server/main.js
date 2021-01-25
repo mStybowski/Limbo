@@ -98,8 +98,6 @@ class LimboServer{
         }
     }
 
-
-
     setGesture(gesture){
         this.state.currentGesture = gesture;
         setTimeout(() => {this.updateAfterSet("server/state/currentGesture", this.state.currentGesture)}, 100);
@@ -107,7 +105,7 @@ class LimboServer{
 
     setServerState(newState){
         this.MQTTState = {...this.MQTTState, ...newState};
-        this.send("server/state", JSON.stringify(this.MQTTState));
+        this.send("server/MQTTState", JSON.stringify(this.MQTTState));
         //TODO UpdateAfterSet
     }
 
@@ -134,9 +132,7 @@ class LimboServer{
             label: "idle",
             command: "finish"
         }
-
         this.pipeline.scripts.fine_tuner.send(JSON.stringify(objToSend));
-
     }
 
     isInterfaceOnline(_interface){
@@ -160,7 +156,6 @@ class LimboServer{
             this.interfacesConfig[newInterface]=data
             this.serverLogs("Newly created interface configuration '" + newInterface + "' had been saved.", "success", true);
         }
-
         this.saveInterfaces();
     }
 
@@ -381,7 +376,6 @@ class LimboServer{
 
         else if(this.state.mode === "learn" && this.state.recording){
 
-            // let featuresArray = [];
             let messageObject = {};
 
             try{
@@ -390,11 +384,6 @@ class LimboServer{
                 messageObject["command"] = "gather";
                 this.pipeline.utilities.mem1 +=1;
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
-                // featuresArray = messageObject["features"];
-
-                // featuresArray.forEach((el)=>{
-                //     this.pipeline.cache.push(el);
-                // });
             }
             catch{
                 this.serverLogs("Odebrano niepoprawne dane")
@@ -469,18 +458,18 @@ class LimboServer{
 
     startRecording(){
         this.clearCache();
-        this.MQTTState.recording = true;
+        this.state.recording = true;
         this.serverLogs("Recording Started");
-        this.sendToSensor(this.MQTTState.onlineInterface, "start");
+        this.sendToSensor(this.state.onlineInterface, "start");
 
 
         setTimeout(()=>{this.finishRecording()}, 3500)
     }
 
     finishRecording(){
-        this.MQTTState.recording = false;
+        this.state.recording = false;
         this.serverLogs("Recording finished");
-        this.sendToSensor(this.MQTTState.onlineInterface, "stop");
+        this.sendToSensor(this.state.onlineInterface, "stop");
 
         this.serverLogs("Received " + this.pipeline.utilities.mem2 + " packets of data.")
         this.serverLogs("Processed " + this.pipeline.utilities.mem1 + " packets of data.")
@@ -507,7 +496,7 @@ class LimboServer{
                 {
                     connected: false,
                     mqttBrokerIP: "",
-                    mode: "idle"
+                    protocol: ""
                 }
             );
         })
@@ -517,7 +506,7 @@ class LimboServer{
                 {
                     connected: true,
                     mqttBrokerIP: ip,
-                    mode: "idle"
+                    protocol: "WS"
                 }
             );
 
