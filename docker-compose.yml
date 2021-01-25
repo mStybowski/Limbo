@@ -7,7 +7,7 @@ services:
     ports:
       - 80:3005
     restart: always
-  frontend:
+  emqx:
     image: emqx/emqx:latest
     container_name: emqx
     ports:
