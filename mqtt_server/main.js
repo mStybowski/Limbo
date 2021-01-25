@@ -96,9 +96,9 @@ class LimboServer{
         }
     }
 
-    setGesture(gesture){
-        this.state.currentGesture = gesture;
-        setTimeout(() => {this.updateAfterSet("server/state/currentGesture", this.state.currentGesture)}, 100);
+    setGesture(_gesture){
+        this.state.gesture = _gesture;
+        setTimeout(() => {this.updateAfterSet("server/state/gesture", this.state.gesture)}, 100);
     }
 
     setServerState(newState){
