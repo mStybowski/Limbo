@@ -357,7 +357,7 @@ class LimboServer{
     }
 
     handleRawData(_interface, message){
-        if(this.MQTTState.recording)
+        if(this.state.recording)
             this.pipeline.utilities.mem2 +=1;
 
         if(this.isInterfaceOnline(_interface))
@@ -392,12 +392,16 @@ class LimboServer{
         else if(this.state.mode === "learn" && this.state.recording){
 
             let _messageObject = {};
+            console.log("\n\nData from preprocessor: " + messageObject)
 
             try{
                 // messageObject = JSON.parse(message);
                 messageObject["label"] = this.state.gesture;
                 messageObject["command"] = "gather";
+
+                console.log("Do fine tune probuje wyslac: " + messageObject)
                 this.pipeline.utilities.mem1 +=1;
+
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
             }
             catch{
