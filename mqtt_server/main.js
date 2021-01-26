@@ -440,6 +440,7 @@ class LimboServer{
         try {
             messageObject = JSON.parse(message)
         }
+
         catch{
             this.serverLogs("Fine_tuner returned invalid JSON.", "warning", true)
             return;
@@ -480,11 +481,14 @@ class LimboServer{
 
     startRecording(){
         this.clearCache();
-        this.state.recording = true;
+
+
+        setTimeout(() => {this.state.recording = true},500)
+
         this.serverLogs("Recording Started");
         this.sendToSensor(this.state.onlineInterface, "start");
 
-        setTimeout(()=>{this.finishRecording()}, 3500)
+        setTimeout(()=>{this.finishRecording()}, 4000)
     }
 
     finishRecording(){
