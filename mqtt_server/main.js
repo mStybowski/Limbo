@@ -414,6 +414,26 @@ class LimboServer{
     postClassifier(message){
 
 
+        console.log("--------------OTRZYMANA WIADOMOSC Z classifiera  ----------")
+
+        console.log(message)
+
+        console.log("--------------OTRZYMANA WIADOMOSC Z claassifiera jako json ----------")
+
+        try{
+
+            let mo = JSON.parse(message);
+
+            console.log(mo.toString())
+
+        }
+        catch{
+            console.log("Nie mozna wyswietlic tej wiadomosci w formacie json bo jest uszkodzona")
+        }
+
+
+        console.log("--------------------------------------------------")
+
 
         let messageObject = {}
         try{
