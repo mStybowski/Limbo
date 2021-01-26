@@ -193,7 +193,7 @@ class LimboServer{
         this.serverLogs("Starting preprocessor ....", "info", true)
 
         //LEARN
-        if(this.MQTTState.mode === "learn")
+        if(this.state.mode === "learn")
         {
             newPipeline.scripts.fine_tuner = PythonInterpreter.spawn("01_fine_tune.py", (message) => {
                 this.postFineTune(message)
@@ -202,7 +202,7 @@ class LimboServer{
         }
 
         //PREDICT
-        else if(this.MQTTState.mode === "predict"){
+        else if(this.state.mode === "predict"){
             newPipeline.scripts.classifier = PythonInterpreter.spawn("02_classify.py", (message) => {
                 this.postClassifier(message)
             }, classifierOpt)
@@ -399,7 +399,7 @@ class LimboServer{
                 messageObject["label"] = this.state.gesture;
                 messageObject["command"] = "gather";
 
-                console.log("Do fine tune probuje wyslac: " + messageObject)
+                // console.log("Do fine tune probuje wyslac: " + messageObject)
                 this.pipeline.utilities.mem1 +=1;
 
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
