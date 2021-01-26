@@ -412,6 +412,9 @@ class LimboServer{
     }
 
     postClassifier(message){
+
+
+
         let messageObject = {}
         try{
             messageObject = JSON.parse(message)
@@ -433,6 +436,31 @@ class LimboServer{
     }
 
     postFineTune(message){
+
+
+
+        console.log("--------------OTRZYMANA WIADOMOSC Z FINE TUNE ----------")
+
+        console.log(message)
+
+        console.log("--------------OTRZYMANA WIADOMOSC Z FINE TUNE jako json ----------")
+
+        try{
+
+            let mo = JSON.parse(message);
+
+            console.log(mo.toString())
+
+        }
+        catch{
+            console.log("Nie mozna wyswietlic tej wiadomosci w formacie jsonbo jest uszkodzona")
+        }
+
+
+        console.log("--------------------------------------------------")
+
+
+
         let messageObject = {}
         try {
             messageObject = JSON.parse(message)
