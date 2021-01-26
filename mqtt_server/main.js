@@ -385,8 +385,8 @@ class LimboServer{
             console.log(messageObject)
         }
 
-        else if(this.state.mode === "predict"){
-            this.pipeline.scripts.classifier.send(message);
+        else if(this.state.mode === "predict" && !messageObject.log){
+            this.pipeline.scripts.classifier.send(JSON.stringify(messageObject));
         }
 
         else if(this.state.mode === "learn" && this.state.recording && !messageObject.log){
