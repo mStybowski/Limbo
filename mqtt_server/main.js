@@ -379,6 +379,7 @@ class LimboServer{
 
         if(messageObject["log"]){
             this.handleScriptLog(messageObject["log"]);
+            return;
         }
 
         if(this.state.mode === "idle"){
