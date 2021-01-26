@@ -483,9 +483,12 @@ class LimboServer{
         this.clearCache();
 
 
-        setTimeout(() => {this.state.recording = true},500)
+        setTimeout(() => {
+            this.state.recording = true
+            this.serverLogs("Recording Started.. Counting 3500 ms from now");
 
-        this.serverLogs("Recording Started");
+        },500)
+
         this.sendToSensor(this.state.onlineInterface, "start");
 
         setTimeout(()=>{this.finishRecording()}, 4000)
