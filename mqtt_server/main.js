@@ -449,10 +449,13 @@ class LimboServer{
             this.handleScriptLog(logVar);
         }
 
-        this.send("ClassificationResults", JSON.stringify(messageObject));
-        console.log("-----\n")
-        console.log(messageObject);
-        console.log("\n")
+        if(!messageObject.log){
+            this.send("ClassificationResults", JSON.stringify(messageObject));
+            console.log("-----\n")
+            console.log(messageObject);
+            console.log("\n")
+        }
+
     }
 
     postFineTune(message){
