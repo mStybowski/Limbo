@@ -391,15 +391,15 @@ class LimboServer{
 
         else if(this.state.mode === "learn" && this.state.recording){
 
-            let _messageObject = {};
-            console.log("\n\nData from preprocessor: " + messageObject)
+            console.log("\n\nData from preprocessor: " + JSON.stringify(messageObject));
 
             try{
                 // messageObject = JSON.parse(message);
                 messageObject["label"] = this.state.gesture;
                 messageObject["command"] = "gather";
 
-                // console.log("Do fine tune probuje wyslac: " + messageObject)
+                console.log("Do fine tune probuje wyslac: " )
+                console.log( JSON.stringify(messageObject))
                 this.pipeline.utilities.mem1 +=1;
 
                 this.pipeline.scripts.fine_tuner.send(JSON.stringify(messageObject));
