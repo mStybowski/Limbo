@@ -1,3 +1,4 @@
+const PythonInterpreter = require("../python_shell/main")
 function handleCommands(object, topicList, message){
 
     topicList.shift();
@@ -9,6 +10,10 @@ function handleCommands(object, topicList, message){
 
     else if(topicList[0] === "createPipeline" || topicList[0] === "cp")
         object.startCreatingPipeline();
+
+    else if(topicList[0] === "runScript"){
+        PythonInterpreter.run(parsedMessage);
+    }
 
     else if(topicList[0] === "destroyPipeline" || topicList[0] === "dp")
         object.startDestroyingPipeline();

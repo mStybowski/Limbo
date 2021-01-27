@@ -9,6 +9,7 @@ function handleInterfaces(object, topic, rawMessage){
 
     let parsedMessage = JSON.parse(rawMessage.toString());
     let parsedInterface = parsedMessage["interface"];
+    let parsedData = parsedMessage["arguments"]
     let topicList = topic.split('/');
     topicList.shift();
 
@@ -20,44 +21,34 @@ function handleInterfaces(object, topic, rawMessage){
     }
 
     else if(topicList[0] === "edit"){
-        object.serverLogs("Topic interfaces/edit is not available", "warning");
-        // interfaces.forEach((el, index) => {
-        //     if(!object.interfacesConfig[el]){
-        //         object.serverLogs("Interface configuration '" + el + "' doesn't exist.", "warning");
-        //     }
-        //     else{
-        //         object.interfacesConfig[el]=parsedMessage["attributes"][index];
-        //         object.serverLogs("Freshly updated interface configuration '" + el + "' had been saved.", "success");
-        //     }
-        //
-        // })
-        // object.saveInterfaces();
+        try{
+            object.interfacesConfig[parsedInterface] = {...object.interfacesConfig[parsedInterface], ...parsedData};
+            object.saveInterfaces()
+        }
+        catch{
+            console.log("Something went wrong!")
+        }
     }
 
     else if(topicList[0] === "remove"){
-        object.serverLogs("Topic interfaces/remove is not available", "warning");
-        // interfaces.forEach((el) => {
-        //     if(object.interfacesConfig[el]){
-        //         //TODO use method instead
-        //         delete object.interfacesConfig[el];
-        //         object.serverLogs(el + "' interface configuration has been deleted.", "success");
-        //     }
-        //     else{
-        //         object.serverLogs("Interface configuration '" + el + "' doesn't exist.", "warning");
-        //     }
-        //
-        // })
-        // object.saveInterfaces();
+        try {
+            delete object.interfacesConfig[parsedInterface]
+            object.saveInterfaces()
+            console.log(object.interfacesConfig)
+        }
+        catch{
+            console.log("Something went wrong!")
+        }
     }
 
     else if(topicList[0] === "use")
         object.setInterface(parsedInterface)
 
-    else if(topicList[0] === "end"){
-        object.serverLogs("Topic interfaces/end is not available", "warning");
-        // let oldInterface = object.getOnlineInterface();
-        // object.destroyPipeline();
-        // object.serverLogs("Interface " + oldInterface + " has been finished.", "success", true)
+    else if(topicList[0] === "unset"){
+        if(object.state.pipelineCreated)
+            object.serverLogs("You can't change the interface after creating the pipeline!", "warning", true)
+        else
+            object.state.onlineInterface = null
     }
     else{
         object.serverLogs("I dont know this topic.", "warning")

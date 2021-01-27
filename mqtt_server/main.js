@@ -24,7 +24,7 @@ class LimboServer{
     }
 
     state={
-        gesture: null,
+        gesture: true,
         onlineInterface: null,
         mode: null,
         recording: false,
@@ -110,7 +110,12 @@ class LimboServer{
     // UTILITIES ------------------------------
 
     send(topic, message){
-        this.client.publish(topic, message);
+        if(message === null)
+            this.client.publish(topic, "null");
+        else if(message === false)
+            this.client.publish(topic, "false");
+        else
+            this.client.publish(topic, message);
     }
 
     sendToSensor(sensorName, message, type="command"){

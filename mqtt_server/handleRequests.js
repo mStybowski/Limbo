@@ -1,32 +1,19 @@
-function handleRequests(object, topicList, message){
-        topicList.shift();
+function handleRequests(object, topicList, message) {
+    topicList.shift();
 
-        if(topicList[0] === "state"){
-                object.send("server/state", JSON.stringify(object.state));
+    if (topicList[0] === "state") {
+        object.send("server/state", JSON.stringify(object.state));
 
-                object.serverLogs(`Server state has been published.`);
+        object.serverLogs(`Server state has been published.`);
+    } else {
+        try {
+            let topic = "server/" + topicList[0];
+            console.log(`Topic: ${topic}`)
+            console.log(`Message: ${object.state[topicList[0]]}`)
+            object.send(topic, object.state[topicList[0]])
+        } catch {
+            console.log("Something went wrong!")
         }
-        
-        else if(topicList[0] === "files"){
-
-        }
-
-        else if(topicList[0] === "onlineInterface"){
-                let messageToSend = JSON.stringify(object.getOnlineInterface());
-                object.send("server/onlineInterface", messageToSend);
-                object.serverLogs(`onlineInterface has been published`);
-        }
-
-        else if(topicList[0] === "interfacesConfiguration"){
-                let messageToSend = JSON.stringify(object.getInterfacesConfiguration());
-                object.send("server/interfacesConfiguration", messageToSend);
-                object.serverLogs(`interfaceConfiguration has been published`);
-        }
-
-        else{
-                console.log(`Warning: I dont know this (${topicList[0]}) topic.`)
-                object.serverLogs(`I dont know this (${topicList[0]}) topic.`, "warning");
-        }
+    }
 }
-
 module.exports = handleRequests;

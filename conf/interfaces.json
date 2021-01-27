@@ -1,1 +1,1 @@
-{"test":{"preprocessor":["-t","500"],"fine_tuner":["-t","500"],"classifier":["-t","500"]},"emg":{"preprocessor":["-t","emg","-w","300000","-s","300000"],"fine_tuner":["-t","emg","-m","python_scripts/emg/model.tar"],"classifier":["-t","emg","-m","python_scripts/emg/model.tar"]}}
+{"emg":{"preprocessor":54,"fine_tuner":["-t","emg","-m","python_scripts/emg/model.tar"],"classifier":["-t","emg","-m","python_scripts/emg/model.tar"],"elo":"XD"},"emgggg":{"elo":"XD","preprocessor":54}}

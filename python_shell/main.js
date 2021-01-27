@@ -9,6 +9,13 @@ let defaultOptions = {
     args: ['1', '2', '3']
 };
 
+let defaultOptionsRun = {
+    mode: 'text',
+    scriptPath: './python_scripts/run',
+    pythonOptions: ['-u'], // get print results in real-time
+
+};
+
 class PythonInterpreter{
 
     static spawn(url, onMessageCallback, options = defaultOptions){
@@ -34,14 +41,14 @@ class PythonInterpreter{
         return pInterpreter;
     }
 
-    static run({url, callback, options = defaultOptions}){
+    static run({url, options = defaultOptionsRun}){
         // You should print data using print() in python
         // Callback receives two parameters:
         // err, results
         // where, results is an array consisting of messages collected during execution
         console.log("url: " + url)
         console.log(defaultOptions.scriptPath);
-        PythonShell.run(url, options, callback);
+        PythonShell.run(url, options);
     }
 
 }
