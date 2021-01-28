@@ -433,7 +433,7 @@ class LimboServer{
         }
 
         if(!messageObject.log){
-            this.send("ClassificationResults", JSON.stringify(messageObject));
+            this.send("classificationResults", JSON.stringify(messageObject));
             console.log("-----\n")
             console.log(messageObject);
             console.log("\n")
