@@ -45,7 +45,6 @@ function handleSensors(object, topic, mess){
     }
 
     else{
-        //TODO Wyślij do gui info że nie rozpoznano danych
         object.serverLogs("Received data at unconfigured topic: " + topicList[0], "warning", true);
     }
 }
