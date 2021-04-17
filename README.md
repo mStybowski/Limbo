@@ -1,4 +1,4 @@
-<h1>Limbo backend</h1>
+# Limbo &middot; ![Lines of code](https://img.shields.io/tokei/lines/github/mStybowski/limbo)
 
 <h3>Clone the repo</h3>
 
