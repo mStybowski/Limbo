@@ -1,4 +1,5 @@
-# Limbo &middot; ![Lines of code](https://img.shields.io/tokei/lines/github/mStybowski/limbo)
+## Limbo &middot; ![Lines of code](https://img.shields.io/tokei/lines/github/mStybowski/limbo)
+My engineering thesis project repo.
 
 <h3>Clone the repo</h3>
 
